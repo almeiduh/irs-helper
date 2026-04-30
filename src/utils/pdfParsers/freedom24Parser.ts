@@ -20,6 +20,10 @@ function isinToCountryCode(isin: string): string {
   return resolveCountryCodeFromIsin(isin) ?? '840';
 }
 
+function formatAsset(ticker: string, isin: string): string {
+  return `${ticker} (${isin})`;
+}
+
 // ---------------------------------------------------------------------------
 // Regex patterns
 // ---------------------------------------------------------------------------
@@ -111,6 +115,7 @@ function buildFreedom24Rows92A(trades: Freedom24TradeRecord[]): TaxRow[] {
           despesasEncargos: despesasEncargos.toFixed(2),
           impostoPagoNoEstrangeiro: '0.00',
           codPaisContraparte: countryCode,
+          _asset: formatAsset(trade.ticker, trade.isin),
         });
 
         buyEntry.remainingQty -= matchedQty;
@@ -150,6 +155,7 @@ export async function parseFreedom24Pdf(file: File): Promise<ParsedPdfData> {
     let match: RegExpExecArray | null;
     while ((match = regex.exec(text)) !== null) {
       const isin = match[4];
+      const ticker = match[3];
       const taxFieldsStr = match[5];
       const exchangeRate = parseFloat(match[8]);
       const amountInEur = match[9];
@@ -163,6 +169,7 @@ export async function parseFreedom24Pdf(file: File): Promise<ParsedPdfData> {
         codPais: countryCode,
         rendimentoBruto: normalizeNumber(amountInEur),
         impostoPago,
+        _asset: formatAsset(ticker, isin),
       });
     }
   }

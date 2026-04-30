@@ -27,6 +27,7 @@ describe('parseDegiroTransactionsCsv', () => {
       despesasEncargos: '1.00',
       impostoPagoNoEstrangeiro: '0.00',
       codPaisContraparte: '620',
+      _asset: 'VANGUARD S&P 500 UCITS ETF USD DIS (IE00B3XXRP09)',
     }]);
     expect(data.rows8A).toEqual([]);
     expect(data.rows92B).toEqual([]);

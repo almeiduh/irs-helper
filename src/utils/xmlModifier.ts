@@ -207,6 +207,7 @@ export function enrichXmlWithGains(
     return {
       originalXml,
       enrichedXml: originalXml,
+      parsedData: data,
       summary: emptySummary,
     };
   }
@@ -500,5 +501,5 @@ export function enrichXmlWithGains(
     totalRowsAdded: rows8A.length + rows92A.length + rows92B.length + rowsG9.length + rowsG13.length + rowsG18A.length + rowsG1q7.length,
   };
 
-  return { originalXml, enrichedXml: xml, summary, warnings: data.warnings };
+  return { originalXml, enrichedXml: xml, parsedData: data, summary, warnings: data.warnings };
 }
