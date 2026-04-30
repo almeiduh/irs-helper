@@ -72,6 +72,7 @@
     "step1_description": "Upload an XML file to enrich it, or just view the IRS tables from your broker reports.",
     "mode_enrich": "Upload XML File",
     "mode_tables": "Show IRS Tables",
+    "merge_dividends_by_country": "Merge dividends by source country",
     "brokers_lane": "Broker Reports",
     "brokers_description": "Upload broker reports or CSV exports to extract financial data.",
     "broker_selector_title": "Select the brokers you want to use",

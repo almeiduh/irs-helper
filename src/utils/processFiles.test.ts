@@ -339,6 +339,94 @@ describe('processBrokerFiles – multi-broker', () => {
   });
 });
 
+describe('mergeDividendsByCountry', () => {
+  it('merges 8A rows with the same CodPais and sums gross income and tax', async () => {
+    vi.mocked(parseDegiroAnnualPdf).mockResolvedValueOnce({
+      rows8A: [
+        { codigo: 'E11', codPais: '840', rendimentoBruto: '10.10', impostoPago: '1.10', _source: 'DEGIRO', _asset: 'AAPL US0000012345' },
+        { codigo: 'E11', codPais: '840', rendimentoBruto: '20.20', impostoPago: '2.20', _source: 'DEGIRO', _asset: 'MSFT US0000056789' },
+        { codigo: 'E11', codPais: '276', rendimentoBruto: '5.00', impostoPago: '0.75', _source: 'DEGIRO', _asset: 'SAP DE0007164600' },
+      ],
+      rows92A: [],
+      rows92B: [],
+      rowsG9: [],
+      rowsG13: [],
+      rowsG18A: [],
+      rowsG1q7: [],
+      warnings: [],
+    });
+
+    const result = await processBrokerFiles({
+      degiroAnnualPdf: new File(['dummy'], 'degiro-annual.pdf', { type: 'application/pdf' }),
+      mergeDividendsByCountry: true,
+    });
+
+    expect(result.parsedData.rows8A).toHaveLength(2);
+
+    const usRow = result.parsedData.rows8A.find(r => r.codPais === '840')!;
+    expect(usRow.rendimentoBruto).toBe('30.30');
+    expect(usRow.impostoPago).toBe('3.30');
+    expect(usRow.codigo).toBe('E11');
+    expect(usRow._source).toBe('DEGIRO');
+    expect(usRow._asset).toBeUndefined();
+
+    const deRow = result.parsedData.rows8A.find(r => r.codPais === '276')!;
+    expect(deRow.rendimentoBruto).toBe('5.00');
+    expect(deRow.impostoPago).toBe('0.75');
+    expect(deRow._source).toBe('DEGIRO');
+  });
+
+  it('keeps 8A rows separate when merge is disabled', async () => {
+    vi.mocked(parseDegiroAnnualPdf).mockResolvedValueOnce({
+      rows8A: [
+        { codigo: 'E11', codPais: '840', rendimentoBruto: '10.10', impostoPago: '1.10' },
+        { codigo: 'E11', codPais: '840', rendimentoBruto: '20.20', impostoPago: '2.20' },
+      ],
+      rows92A: [],
+      rows92B: [],
+      rowsG9: [],
+      rowsG13: [],
+      rowsG18A: [],
+      rowsG1q7: [],
+      warnings: [],
+    });
+
+    const result = await processBrokerFiles({
+      degiroAnnualPdf: new File(['dummy'], 'degiro-annual.pdf', { type: 'application/pdf' }),
+    });
+
+    expect(result.parsedData.rows8A).toHaveLength(2);
+    expect(result.parsedData.rows8A[0].rendimentoBruto).toBe('10.10');
+    expect(result.parsedData.rows8A[1].rendimentoBruto).toBe('20.20');
+  });
+
+  it('removes _source from merged row when brokers differ', async () => {
+    vi.mocked(parseTradeRepublicPdf).mockResolvedValueOnce({
+      rows8A: [
+        { codigo: 'E11', codPais: '840', rendimentoBruto: '10.00', impostoPago: '1.00', _source: 'Trade Republic' },
+      ],
+      rows92A: [], rows92B: [], rowsG9: [], rowsG13: [], rowsG18A: [], rowsG1q7: [], warnings: [],
+    });
+    vi.mocked(parseTrading212Pdf).mockResolvedValueOnce({
+      rows8A: [
+        { codigo: 'E11', codPais: '840', rendimentoBruto: '5.00', impostoPago: '0.50', _source: 'Trading 212' },
+      ],
+      rows92A: [], rows92B: [], rowsG9: [], rowsG13: [], rowsG18A: [], rowsG1q7: [], warnings: [],
+    });
+
+    const result = await processBrokerFiles({
+      tradeRepublicPdf: new File(['dummy'], 'tr.pdf', { type: 'application/pdf' }),
+      trading212Pdf: new File(['dummy'], 't212.pdf', { type: 'application/pdf' }),
+      mergeDividendsByCountry: true,
+    });
+
+    const merged = result.parsedData.rows8A.find(r => r.codPais === '840');
+    expect(merged!.rendimentoBruto).toBe('15.00');
+    expect(merged!.impostoPago).toBe('1.50');
+    expect(merged!._source).toBeUndefined();
+  });
+});
+
 describe('downloadXmlFile', () => {
   it('creates a blob, triggers download, and revokes URL', () => {
     const mockClick = vi.fn();

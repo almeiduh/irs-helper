@@ -15,6 +15,7 @@ export const NO_ROWS_FOUND_ERROR = 'NO_ROWS_FOUND';
 
 export interface ProcessTaxFilesInput {
   xmlFile: File;
+  mergeDividendsByCountry?: boolean;
   xtbCapitalGainsPdf?: File | null;
   xtbDividendsPdf?: File | null;
   tradeRepublicPdf?: File | null;
@@ -29,6 +30,7 @@ export interface ProcessTaxFilesInput {
 }
 
 export interface ProcessBrokerFilesInput {
+  mergeDividendsByCountry?: boolean;
   xtbCapitalGainsPdf?: File | null;
   xtbDividendsPdf?: File | null;
   tradeRepublicPdf?: File | null;
@@ -83,6 +85,34 @@ function emptyParsedData(): ParsedPdfData {
     rowsG1q7: [],
     warnings: [],
   };
+}
+
+function formatMoney(value: number): string {
+  return value.toFixed(2);
+}
+
+function mergeRows8AByCountry(rows: ParsedPdfData['rows8A']): ParsedPdfData['rows8A'] {
+  const merged = new Map<string, ParsedPdfData['rows8A'][number]>();
+
+  for (const row of rows) {
+    const existing = merged.get(row.codPais);
+
+    if (!existing) {
+      const { _asset, ...rest } = row;
+      void _asset;
+      merged.set(row.codPais, { ...rest });
+      continue;
+    }
+
+    existing.rendimentoBruto = formatMoney(Number(existing.rendimentoBruto) + Number(row.rendimentoBruto));
+    existing.impostoPago = formatMoney(Number(existing.impostoPago) + Number(row.impostoPago));
+
+    if (existing._source !== row._source) {
+      delete existing._source;
+    }
+  }
+
+  return [...merged.values()];
 }
 
 function mergeParsedData(target: ParsedPdfData, incoming: ParsedPdfData, brokerName: BrokerName, sources: AggregatedSources): void {
@@ -227,6 +257,10 @@ export async function processTaxFiles(input: ProcessTaxFilesInput): Promise<Enri
     mergeParsedData(parsedData, parsed, parseJob.brokerName, sources);
   }
 
+  if (input.mergeDividendsByCountry) {
+    parsedData.rows8A = mergeRows8AByCountry(parsedData.rows8A);
+  }
+
   const totalRows = parsedData.rows8A.length + parsedData.rows92A.length + parsedData.rows92B.length + parsedData.rowsG9.length + parsedData.rowsG13.length + parsedData.rowsG18A.length + parsedData.rowsG1q7.length;
   if (totalRows === 0 && !(parsedData.warnings && parsedData.warnings.length > 0)) {
     throw new Error(NO_ROWS_FOUND_ERROR);
@@ -330,6 +364,10 @@ export async function processBrokerFiles(input: ProcessBrokerFilesInput): Promis
 
     const parsed = await parseJob.parser(parseJob.file);
     mergeParsedData(parsedData, parsed, parseJob.brokerName, sources);
+  }
+
+  if (input.mergeDividendsByCountry) {
+    parsedData.rows8A = mergeRows8AByCountry(parsedData.rows8A);
   }
 
   const totalRows = parsedData.rows8A.length + parsedData.rows92A.length + parsedData.rows92B.length + parsedData.rowsG9.length + parsedData.rowsG13.length + parsedData.rowsG18A.length + parsedData.rowsG1q7.length;

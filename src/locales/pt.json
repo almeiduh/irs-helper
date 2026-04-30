@@ -72,6 +72,7 @@
     "step1_description": "Carregue um ficheiro XML para o enriquecer, ou visualize as tabelas IRS a partir dos relatórios das corretoras.",
     "mode_enrich": "Carregar Ficheiro XML",
     "mode_tables": "Ver Tabelas IRS",
+    "merge_dividends_by_country": "Juntar dividendos por país da fonte",
     "brokers_lane": "Relatórios das Corretoras",
     "brokers_description": "Carregue relatórios ou exportações CSV das suas corretoras para extrair dados financeiros.",
     "broker_selector_title": "Selecione as corretoras que quer usar",

@@ -50,6 +50,7 @@ export function HomePage() {
   const [revolutConsolidatedPdf, setRevolutConsolidatedPdf] = useState<File | null>(null);
   const [selectedBrokerIds, setSelectedBrokerIds] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [mergeDividendsByCountry, setMergeDividendsByCountry] = useState(false);
   const [result, setResult] = useState<EnrichmentResult | null>(null);
   const [tablesResult, setTablesResult] = useState<BrokerFilesResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -337,6 +338,7 @@ export function HomePage() {
       if (workflowMode === 'enrich') {
         const enrichmentResult = await processTaxFiles({
           xmlFile: xmlFile!,
+          mergeDividendsByCountry,
           xtbCapitalGainsPdf,
           xtbDividendsPdf,
           tradeRepublicPdf,
@@ -352,6 +354,7 @@ export function HomePage() {
         setResult(enrichmentResult);
       } else {
         const brokerResult = await processBrokerFiles({
+          mergeDividendsByCountry,
           xtbCapitalGainsPdf,
           xtbDividendsPdf,
           tradeRepublicPdf,
@@ -461,6 +464,14 @@ export function HomePage() {
                   onRemove={() => setXmlFile(null)}
                 />
               )}
+              <label className="processing-option">
+                <input
+                  type="checkbox"
+                  checked={mergeDividendsByCountry}
+                  onChange={event => setMergeDividendsByCountry(event.target.checked)}
+                />
+                <span>{t('uploader.merge_dividends_by_country')}</span>
+              </label>
             </div>
           </section>
 
