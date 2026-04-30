@@ -168,6 +168,10 @@ function formatDatePart(value: string): string {
   return String(Number.parseInt(value, 10));
 }
 
+function formatAsset(product: string, isin: string): string {
+  return `${product} (${isin})`;
+}
+
 function buildTimestamp(date: string, time: string): number {
   const [, dayPart, monthPart, yearPart] = date.match(DATE_REGEX) ?? [];
   const [, hourPart, minutePart] = time.match(TIME_REGEX) ?? [];
@@ -400,6 +404,7 @@ function buildTaxRow(
     // DEGIRO's transactions CSV does not expose the counterparty residence,
     // so this legacy default is preserved and surfaced as a UI limitation.
     codPaisContraparte: '620',
+    _asset: formatAsset(sellEvent.product, sellEvent.isin),
   };
 }
 

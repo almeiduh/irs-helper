@@ -4,6 +4,7 @@ import { parseTrading212Pdf } from './pdfParsers/trading212Parser';
 import { parseActivoBankPdf } from './pdfParsers/activoBankParser';
 import { parseFreedom24Pdf } from './pdfParsers/freedom24Parser';
 import { parseIbkrPdf } from './pdfParsers/ibkrParser';
+import { parseDegiroAnnualPdf } from './pdfParsers/degiroParser';
 import { parseRevolutConsolidatedPdf } from './pdfParsers/revolutParser';
 import { parseDegiroTransactionsCsv } from './csvParsers/degiroParser';
 import { parseBinanceTransactionsXlsx } from './xlsxParsers/binanceParser';
@@ -21,6 +22,7 @@ export interface ProcessTaxFilesInput {
   activoBankPdf?: File | null;
   freedom24Pdf?: File | null;
   ibkrPdf?: File | null;
+  degiroAnnualPdf?: File | null;
   degiroTransactionsCsv?: File | null;
   binanceTransactionsXlsx?: File | null;
   revolutConsolidatedPdf?: File | null;
@@ -34,6 +36,7 @@ export interface ProcessBrokerFilesInput {
   activoBankPdf?: File | null;
   freedom24Pdf?: File | null;
   ibkrPdf?: File | null;
+  degiroAnnualPdf?: File | null;
   degiroTransactionsCsv?: File | null;
   binanceTransactionsXlsx?: File | null;
   revolutConsolidatedPdf?: File | null;
@@ -194,6 +197,11 @@ export async function processTaxFiles(input: ProcessTaxFilesInput): Promise<Enri
       brokerName: 'IBKR',
     },
     {
+      file: input.degiroAnnualPdf,
+      parser: parseDegiroAnnualPdf,
+      brokerName: 'DEGIRO',
+    },
+    {
       file: input.degiroTransactionsCsv,
       parser: file => parseDegiroTransactionsCsv(file, { targetRealizationYear: degiroTargetRealizationYear }),
       brokerName: 'DEGIRO',
@@ -224,7 +232,7 @@ export async function processTaxFiles(input: ProcessTaxFilesInput): Promise<Enri
     throw new Error(NO_ROWS_FOUND_ERROR);
   }
 
-  return enrichXmlWithGains(originalXmlText, parsedData, {
+  const enrichmentResult = enrichXmlWithGains(originalXmlText, parsedData, {
     table8A: [...sources.table8A],
     table92A: [...sources.table92A],
     table92B: [...sources.table92B],
@@ -233,6 +241,11 @@ export async function processTaxFiles(input: ProcessTaxFilesInput): Promise<Enri
     tableG18A: [...sources.tableG18A],
     tableG1q7: [...sources.tableG1q7],
   });
+
+  return {
+    ...enrichmentResult,
+    parsedData,
+  };
 }
 
 /**
@@ -287,6 +300,11 @@ export async function processBrokerFiles(input: ProcessBrokerFilesInput): Promis
       file: input.ibkrPdf,
       parser: parseIbkrPdf,
       brokerName: 'IBKR',
+    },
+    {
+      file: input.degiroAnnualPdf,
+      parser: parseDegiroAnnualPdf,
+      brokerName: 'DEGIRO',
     },
     {
       file: input.degiroTransactionsCsv,

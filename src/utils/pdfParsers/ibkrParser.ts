@@ -39,6 +39,10 @@ function parseIbkrNumber(s: string): number {
   return parseFloat(s.replace(/,/g, ''));
 }
 
+function formatAsset(ticker: string, isin: string): string {
+  return isin ? `${ticker} (${isin})` : ticker;
+}
+
 function extractIbkrSection(text: string, start: string, ends: string[]): string {
   const lowerText = text.toLowerCase();
   const needle = start.trim().toLowerCase();
@@ -152,6 +156,7 @@ function buildIbkrRows92A(
         despesasEncargos: despesasEncargos.toFixed(2),
         impostoPagoNoEstrangeiro: '0.00',
         codPaisContraparte: countryCode,
+        _asset: formatAsset(sell.symbol, isin),
       });
 
       buyEntry.remainingQty -= matchedQty;
@@ -282,7 +287,7 @@ export async function parseIbkrPdf(file: File): Promise<ParsedPdfData> {
     });
   }
 
-  const divAggMap = new Map<string, { rendimentoBruto: number; impostoPago: number; codPais: string }>();
+  const divAggMap = new Map<string, { rendimentoBruto: number; impostoPago: number; codPais: string; asset: string }>();
   for (const div of dividends) {
     const whtEntry = whtEntries.find(w => w.ticker === div.ticker && w.date === div.date);
     const countryCode = whtEntry ? whtEntry.countryCode : isinToCountryCode(div.isin);
@@ -296,6 +301,7 @@ export async function parseIbkrPdf(file: File): Promise<ParsedPdfData> {
         rendimentoBruto: div.amount,
         impostoPago: whtEntry?.amount ?? 0,
         codPais: countryCode,
+        asset: formatAsset(div.ticker, div.isin),
       });
     }
   }
@@ -307,6 +313,7 @@ export async function parseIbkrPdf(file: File): Promise<ParsedPdfData> {
       codPais: entry.codPais,
       rendimentoBruto: entry.rendimentoBruto.toFixed(2),
       impostoPago: entry.impostoPago.toFixed(2),
+      _asset: entry.asset,
     });
   }
 
