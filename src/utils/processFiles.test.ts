@@ -4,6 +4,7 @@ import { BrokerParsingError } from './parserErrors';
 import { parseTradeRepublicPdf } from './pdfParsers/tradeRepublicParser';
 import { parseTrading212Pdf } from './pdfParsers/trading212Parser';
 import { parseActivoBankPdf } from './pdfParsers/activoBankParser';
+import { parseDegiroAnnualPdf } from './pdfParsers/degiroParser';
 
 const sampleCsv = `Data,Hora,Produto,ISIN,Bolsa de referência,Bolsa,Quantidade,Preços,,Valor local,,Valor EUR,Taxa de Câmbio,Taxa Autofx,Custos de transação e/ou taxas de terceiros,Total EUR,ID da Ordem,
 31-05-2023,09:04,VANGUARD S&P 500 UCITS ETF USD DIS,IE00B3XXRP09,EAM,XAMS,-1,"74,4890",EUR,"74,49",EUR,"74,49",,"0,00",,"74,49",,7de27f2e-430f-4bd0-9110-af75f4c65a89
@@ -30,6 +31,9 @@ vi.mock('./pdfParsers/freedom24Parser', () => ({
 vi.mock('./pdfParsers/ibkrParser', () => ({
   parseIbkrPdf: vi.fn(),
 }));
+vi.mock('./pdfParsers/degiroParser', () => ({
+  parseDegiroAnnualPdf: vi.fn(),
+}));
 vi.mock('./pdfParsers/revolutParser', () => ({
   parseRevolutConsolidatedPdf: vi.fn(),
 }));
@@ -41,6 +45,7 @@ describe('processBrokerFiles', () => {
 
     expect(result.parsedData.rows92A).toHaveLength(1);
     expect(result.sources.table92A).toEqual(['DEGIRO']);
+    expect(result.parsedData.rows92A[0]._asset).toBe('VANGUARD S&P 500 UCITS ETF USD DIS (IE00B3XXRP09)');
   });
 
   it('keeps DEGIRO rows from all years when no target year is supplied', async () => {
@@ -56,9 +61,83 @@ describe('processBrokerFiles', () => {
     expect(result.parsedData.rows92A).toHaveLength(2);
     expect(result.parsedData.rows92A.map(row => row.anoRealizacao)).toEqual(['2024', '2025']);
   });
+
+  it('includes DEGIRO annual PDF dividend rows in the broker aggregation flow', async () => {
+    vi.mocked(parseDegiroAnnualPdf).mockResolvedValueOnce({
+      rows8A: [{ codigo: 'E11', codPais: '136', rendimentoBruto: '37.60', impostoPago: '0.00' }],
+      rows92A: [],
+      rows92B: [],
+      rowsG9: [],
+      rowsG13: [],
+      rowsG18A: [],
+      rowsG1q7: [],
+      warnings: [],
+    });
+
+    const result = await processBrokerFiles({
+      degiroAnnualPdf: new File(['dummy'], 'degiro-annual.pdf', { type: 'application/pdf' }),
+    });
+
+    expect(result.parsedData.rows8A).toEqual([
+      {
+        codigo: 'E11',
+        codPais: '136',
+        rendimentoBruto: '37.60',
+        impostoPago: '0.00',
+        _source: 'DEGIRO',
+      },
+    ]);
+    expect(result.sources.table8A).toEqual(['DEGIRO']);
+  });
 });
 
 describe('processTaxFiles', () => {
+  it('returns parsed rows created during XML enrichment', async () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<Modelo3IRSv2025 xmlns="http://www.dgci.gov.pt/2009/Modelo3IRSv2025">
+  <AnexoJ>
+    <Quadro08>
+      <AnexoJq08AT01/>
+      <AnexoJq08AT01SomaC01>0.00</AnexoJq08AT01SomaC01>
+      <AnexoJq08AT01SomaC02>0.00</AnexoJq08AT01SomaC02>
+    </Quadro08>
+    <Quadro09>
+      <AnexoJq092AT01/>
+      <AnexoJq092AT01SomaC01>0.00</AnexoJq092AT01SomaC01>
+      <AnexoJq092AT01SomaC02>0.00</AnexoJq092AT01SomaC02>
+      <AnexoJq092AT01SomaC03>0.00</AnexoJq092AT01SomaC03>
+      <AnexoJq092AT01SomaC04>0.00</AnexoJq092AT01SomaC04>
+    </Quadro09>
+  </AnexoJ>
+</Modelo3IRSv2025>`;
+
+    vi.mocked(parseDegiroAnnualPdf).mockResolvedValueOnce({
+      rows8A: [{ codigo: 'E11', codPais: '840', rendimentoBruto: '41.11', impostoPago: '0.00' }],
+      rows92A: [],
+      rows92B: [],
+      rowsG9: [],
+      rowsG13: [],
+      rowsG18A: [],
+      rowsG1q7: [],
+      warnings: [],
+    });
+
+    const result = await processTaxFiles({
+      xmlFile: new File([xml], 'irs.xml', { type: 'application/xml' }),
+      degiroAnnualPdf: new File(['dummy'], 'degiro-annual.pdf', { type: 'application/pdf' }),
+    });
+
+    expect(result.parsedData.rows8A).toEqual([
+      {
+        codigo: 'E11',
+        codPais: '840',
+        rendimentoBruto: '41.11',
+        impostoPago: '0.00',
+        _source: 'DEGIRO',
+      },
+    ]);
+  });
+
   it('infers the target transaction year from the XML model version for DEGIRO enrichment', async () => {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <Modelo3IRSv2026 xmlns="http://www.dgci.gov.pt/2009/Modelo3IRSv2026">
@@ -87,6 +166,7 @@ describe('processTaxFiles', () => {
 
     expect(result.summary.table92A.rowsAdded).toBe(1);
     expect(result.summary.table92A.sources).toEqual(['DEGIRO']);
+    expect(result.parsedData.rows92A[0]._asset).toBe('ETF (IE00B3XXRP09)');
     expect(result.enrichedXml).toContain('<AnoRealizacao>2025</AnoRealizacao>');
     expect(result.enrichedXml).not.toContain('<AnoRealizacao>2024</AnoRealizacao>');
   });
@@ -256,6 +336,94 @@ describe('processBrokerFiles – multi-broker', () => {
     expect(result.parsedData.rows8A[1]._source).toBe('Trading 212');
     expect(result.sources.table8A).toContain('Trade Republic');
     expect(result.sources.table8A).toContain('Trading 212');
+  });
+});
+
+describe('mergeDividendsByCountry', () => {
+  it('merges 8A rows with the same CodPais and sums gross income and tax', async () => {
+    vi.mocked(parseDegiroAnnualPdf).mockResolvedValueOnce({
+      rows8A: [
+        { codigo: 'E11', codPais: '840', rendimentoBruto: '10.10', impostoPago: '1.10', _source: 'DEGIRO', _asset: 'AAPL US0000012345' },
+        { codigo: 'E11', codPais: '840', rendimentoBruto: '20.20', impostoPago: '2.20', _source: 'DEGIRO', _asset: 'MSFT US0000056789' },
+        { codigo: 'E11', codPais: '276', rendimentoBruto: '5.00', impostoPago: '0.75', _source: 'DEGIRO', _asset: 'SAP DE0007164600' },
+      ],
+      rows92A: [],
+      rows92B: [],
+      rowsG9: [],
+      rowsG13: [],
+      rowsG18A: [],
+      rowsG1q7: [],
+      warnings: [],
+    });
+
+    const result = await processBrokerFiles({
+      degiroAnnualPdf: new File(['dummy'], 'degiro-annual.pdf', { type: 'application/pdf' }),
+      mergeDividendsByCountry: true,
+    });
+
+    expect(result.parsedData.rows8A).toHaveLength(2);
+
+    const usRow = result.parsedData.rows8A.find(r => r.codPais === '840')!;
+    expect(usRow.rendimentoBruto).toBe('30.30');
+    expect(usRow.impostoPago).toBe('3.30');
+    expect(usRow.codigo).toBe('E11');
+    expect(usRow._source).toBe('DEGIRO');
+    expect(usRow._asset).toBeUndefined();
+
+    const deRow = result.parsedData.rows8A.find(r => r.codPais === '276')!;
+    expect(deRow.rendimentoBruto).toBe('5.00');
+    expect(deRow.impostoPago).toBe('0.75');
+    expect(deRow._source).toBe('DEGIRO');
+  });
+
+  it('keeps 8A rows separate when merge is disabled', async () => {
+    vi.mocked(parseDegiroAnnualPdf).mockResolvedValueOnce({
+      rows8A: [
+        { codigo: 'E11', codPais: '840', rendimentoBruto: '10.10', impostoPago: '1.10' },
+        { codigo: 'E11', codPais: '840', rendimentoBruto: '20.20', impostoPago: '2.20' },
+      ],
+      rows92A: [],
+      rows92B: [],
+      rowsG9: [],
+      rowsG13: [],
+      rowsG18A: [],
+      rowsG1q7: [],
+      warnings: [],
+    });
+
+    const result = await processBrokerFiles({
+      degiroAnnualPdf: new File(['dummy'], 'degiro-annual.pdf', { type: 'application/pdf' }),
+    });
+
+    expect(result.parsedData.rows8A).toHaveLength(2);
+    expect(result.parsedData.rows8A[0].rendimentoBruto).toBe('10.10');
+    expect(result.parsedData.rows8A[1].rendimentoBruto).toBe('20.20');
+  });
+
+  it('removes _source from merged row when brokers differ', async () => {
+    vi.mocked(parseTradeRepublicPdf).mockResolvedValueOnce({
+      rows8A: [
+        { codigo: 'E11', codPais: '840', rendimentoBruto: '10.00', impostoPago: '1.00', _source: 'Trade Republic' },
+      ],
+      rows92A: [], rows92B: [], rowsG9: [], rowsG13: [], rowsG18A: [], rowsG1q7: [], warnings: [],
+    });
+    vi.mocked(parseTrading212Pdf).mockResolvedValueOnce({
+      rows8A: [
+        { codigo: 'E11', codPais: '840', rendimentoBruto: '5.00', impostoPago: '0.50', _source: 'Trading 212' },
+      ],
+      rows92A: [], rows92B: [], rowsG9: [], rowsG13: [], rowsG18A: [], rowsG1q7: [], warnings: [],
+    });
+
+    const result = await processBrokerFiles({
+      tradeRepublicPdf: new File(['dummy'], 'tr.pdf', { type: 'application/pdf' }),
+      trading212Pdf: new File(['dummy'], 't212.pdf', { type: 'application/pdf' }),
+      mergeDividendsByCountry: true,
+    });
+
+    const merged = result.parsedData.rows8A.find(r => r.codPais === '840');
+    expect(merged!.rendimentoBruto).toBe('15.00');
+    expect(merged!.impostoPago).toBe('1.50');
+    expect(merged!._source).toBeUndefined();
   });
 });
 

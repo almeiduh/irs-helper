@@ -6,6 +6,8 @@ export interface BaseTaxRow {
   codPais: string;
   /** Broker that originated this row, stamped at merge time. */
   _source?: BrokerName;
+  /** Source instrument shown in created-row previews, e.g. ticker plus ISIN. */
+  _asset?: string;
 }
 
 /** Anexo J - Quadro 9.2 A row (capital gains sells/acquisitions). */
@@ -42,6 +44,7 @@ export interface TaxRow8A extends BaseTaxRow {
 /** Anexo G - Quadro 9 row (shares sold through a Portuguese entity). */
 export interface TaxRowG9 {
   _source?: BrokerName;
+  _asset?: string;
   titular: string;
   nif: string;
   codEncargos: string;
@@ -60,6 +63,7 @@ export interface TaxRowG9 {
 /** Anexo G - Quadro 13 row (CFDs/derivatives). */
 export interface TaxRowG13 {
   _source?: BrokerName;
+  _asset?: string;
   codigoOperacao: string;
   titular: string;
   rendimentoLiquido: string;
@@ -69,6 +73,7 @@ export interface TaxRowG13 {
 /** Anexo G - Quadro 18A row (crypto assets held < 365 days, taxable). */
 export interface TaxRowG18A {
   _source?: BrokerName;
+  _asset?: string;
   titular: string;
   codPaisEntGestora: string;
   anoRealizacao: string;
@@ -86,6 +91,7 @@ export interface TaxRowG18A {
 /** Anexo G1 - Quadro 7 row (crypto assets held >= 365 days, exempt). */
 export interface TaxRowG1q7 {
   _source?: BrokerName;
+  _asset?: string;
   titular: string;
   codPaisEntGestora: string;
   anoRealizacao: string;
@@ -137,6 +143,7 @@ export interface EnrichmentSummary {
 export interface EnrichmentResult {
   enrichedXml: string;
   originalXml: string;
+  parsedData: ParsedPdfData;
   summary: EnrichmentSummary;
   warnings?: string[];
 }

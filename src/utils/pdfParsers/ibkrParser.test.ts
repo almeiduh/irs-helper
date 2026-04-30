@@ -77,6 +77,7 @@ describe('parseIbkrPdf', () => {
     expect(row.valorRealizacao).toBe('449.32');
     expect(row.valorAquisicao).toBe('462.03');
     expect(row.despesasEncargos).toBe('1.25');
+    expect(row._asset).toBe('3S0 (DE000A0F6MD5)');
     expect(row.anoAquisicao).toBe('2025');
     expect(row.mesAquisicao).toBe('2');
     expect(row.diaAquisicao).toBe('10');
@@ -130,6 +131,7 @@ describe('parseIbkrPdf', () => {
     expect(row.codPais).toBe('380');
     expect(row.rendimentoBruto).toBe('18.80');
     expect(row.impostoPago).toBe('4.89');
+    expect(row._asset).toBe('FILA (IT0004967292)');
   });
 
   it('uses BR country code for ADR dividend with Brazil WHT', async () => {

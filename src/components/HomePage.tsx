@@ -44,11 +44,13 @@ export function HomePage() {
   const [activoBankPdf, setActivoBankPdf] = useState<File | null>(null);
   const [freedom24Pdf, setFreedom24Pdf] = useState<File | null>(null);
   const [ibkrPdf, setIbkrPdf] = useState<File | null>(null);
+  const [degiroAnnualPdf, setDegiroAnnualPdf] = useState<File | null>(null);
   const [degiroTransactionsCsv, setDegiroTransactionsCsv] = useState<File | null>(null);
   const [binanceTransactionsXlsx, setBinanceTransactionsXlsx] = useState<File | null>(null);
   const [revolutConsolidatedPdf, setRevolutConsolidatedPdf] = useState<File | null>(null);
   const [selectedBrokerIds, setSelectedBrokerIds] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [mergeDividendsByCountry, setMergeDividendsByCountry] = useState(false);
   const [result, setResult] = useState<EnrichmentResult | null>(null);
   const [tablesResult, setTablesResult] = useState<BrokerFilesResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -123,7 +125,7 @@ export function HomePage() {
     };
   }, [showDonationPrompt]);
 
-  const hasBrokerFile = xtbCapitalGainsPdf || xtbDividendsPdf || tradeRepublicPdf || trading212Pdf || activoBankPdf || freedom24Pdf || ibkrPdf || degiroTransactionsCsv || binanceTransactionsXlsx || revolutConsolidatedPdf;
+  const hasBrokerFile = xtbCapitalGainsPdf || xtbDividendsPdf || tradeRepublicPdf || trading212Pdf || activoBankPdf || freedom24Pdf || ibkrPdf || degiroAnnualPdf || degiroTransactionsCsv || binanceTransactionsXlsx || revolutConsolidatedPdf;
 
   const brokerSections: BrokerSection[] = useMemo(
     () => [
@@ -211,7 +213,13 @@ export function HomePage() {
         ],
         uploaders: [
           {
-            labelKey: 'uploader.degiro_report',
+            labelKey: 'uploader.degiro_annual_report',
+            accept: '.pdf',
+            file: degiroAnnualPdf,
+            setFile: setDegiroAnnualPdf,
+          },
+          {
+            labelKey: 'uploader.degiro_transactions_csv',
             accept: '.csv',
             file: degiroTransactionsCsv,
             setFile: setDegiroTransactionsCsv,
@@ -294,7 +302,7 @@ export function HomePage() {
         ],
       },
     ],
-    [xtbCapitalGainsPdf, xtbDividendsPdf, tradeRepublicPdf, trading212Pdf, activoBankPdf, freedom24Pdf, ibkrPdf, degiroTransactionsCsv, binanceTransactionsXlsx, revolutConsolidatedPdf],
+    [xtbCapitalGainsPdf, xtbDividendsPdf, tradeRepublicPdf, trading212Pdf, activoBankPdf, freedom24Pdf, ibkrPdf, degiroAnnualPdf, degiroTransactionsCsv, binanceTransactionsXlsx, revolutConsolidatedPdf],
   );
 
   const visibleBrokerSections = useMemo(
@@ -330,6 +338,7 @@ export function HomePage() {
       if (workflowMode === 'enrich') {
         const enrichmentResult = await processTaxFiles({
           xmlFile: xmlFile!,
+          mergeDividendsByCountry,
           xtbCapitalGainsPdf,
           xtbDividendsPdf,
           tradeRepublicPdf,
@@ -337,6 +346,7 @@ export function HomePage() {
           activoBankPdf,
           freedom24Pdf,
           ibkrPdf,
+          degiroAnnualPdf,
           degiroTransactionsCsv,
           binanceTransactionsXlsx,
           revolutConsolidatedPdf,
@@ -344,6 +354,7 @@ export function HomePage() {
         setResult(enrichmentResult);
       } else {
         const brokerResult = await processBrokerFiles({
+          mergeDividendsByCountry,
           xtbCapitalGainsPdf,
           xtbDividendsPdf,
           tradeRepublicPdf,
@@ -351,6 +362,7 @@ export function HomePage() {
           activoBankPdf,
           freedom24Pdf,
           ibkrPdf,
+          degiroAnnualPdf,
           degiroTransactionsCsv,
           binanceTransactionsXlsx,
           revolutConsolidatedPdf,
@@ -452,6 +464,14 @@ export function HomePage() {
                   onRemove={() => setXmlFile(null)}
                 />
               )}
+              <label className="processing-option">
+                <input
+                  type="checkbox"
+                  checked={mergeDividendsByCountry}
+                  onChange={event => setMergeDividendsByCountry(event.target.checked)}
+                />
+                <span>{t('uploader.merge_dividends_by_country')}</span>
+              </label>
             </div>
           </section>
 
@@ -594,7 +614,7 @@ export function HomePage() {
 
       {result && (
         <div className="results-section" ref={resultsRef}>
-          <EnrichmentReport summary={result.summary} />
+          <EnrichmentReport summary={result.summary} parsedData={result.parsedData} />
           <DiffViewer originalXml={result.originalXml} enrichedXml={result.enrichedXml} />
         </div>
       )}
