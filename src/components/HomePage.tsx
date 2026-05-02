@@ -47,6 +47,7 @@ export function HomePage() {
   const [degiroTransactionsCsv, setDegiroTransactionsCsv] = useState<File | null>(null);
   const [binanceTransactionsXlsx, setBinanceTransactionsXlsx] = useState<File | null>(null);
   const [revolutConsolidatedPdf, setRevolutConsolidatedPdf] = useState<File | null>(null);
+  const [etradeGainLossXlsx, setEtradeGainLossXlsx] = useState<File | null>(null);
   const [selectedBrokerIds, setSelectedBrokerIds] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<EnrichmentResult | null>(null);
@@ -123,7 +124,7 @@ export function HomePage() {
     };
   }, [showDonationPrompt]);
 
-  const hasBrokerFile = xtbCapitalGainsPdf || xtbDividendsPdf || tradeRepublicPdf || trading212Pdf || activoBankPdf || freedom24Pdf || ibkrPdf || degiroTransactionsCsv || binanceTransactionsXlsx || revolutConsolidatedPdf;
+  const hasBrokerFile = xtbCapitalGainsPdf || xtbDividendsPdf || tradeRepublicPdf || trading212Pdf || activoBankPdf || freedom24Pdf || ibkrPdf || degiroTransactionsCsv || binanceTransactionsXlsx || revolutConsolidatedPdf || etradeGainLossXlsx;
 
   const brokerSections: BrokerSection[] = useMemo(
     () => [
@@ -293,8 +294,23 @@ export function HomePage() {
           },
         ],
       },
+      {
+        id: 'etrade',
+        badge: getBrokerBadgeMeta('etrade')?.shortLabel ?? 'ET',
+        badgeClass: getBrokerBadgeMeta('etrade')?.badgeClass ?? 'broker-badge--etrade',
+        laneKey: 'uploader.etrade_lane',
+        warningKeys: ['uploader.etrade_warning_1', 'uploader.etrade_warning_2', 'uploader.etrade_warning_3'],
+        uploaders: [
+          {
+            labelKey: 'uploader.etrade_report',
+            accept: '.xlsx',
+            file: etradeGainLossXlsx,
+            setFile: setEtradeGainLossXlsx,
+          },
+        ],
+      },
     ],
-    [xtbCapitalGainsPdf, xtbDividendsPdf, tradeRepublicPdf, trading212Pdf, activoBankPdf, freedom24Pdf, ibkrPdf, degiroTransactionsCsv, binanceTransactionsXlsx, revolutConsolidatedPdf],
+    [xtbCapitalGainsPdf, xtbDividendsPdf, tradeRepublicPdf, trading212Pdf, activoBankPdf, freedom24Pdf, ibkrPdf, degiroTransactionsCsv, binanceTransactionsXlsx, revolutConsolidatedPdf, etradeGainLossXlsx],
   );
 
   const visibleBrokerSections = useMemo(
@@ -340,6 +356,7 @@ export function HomePage() {
           degiroTransactionsCsv,
           binanceTransactionsXlsx,
           revolutConsolidatedPdf,
+          etradeGainLossXlsx,
         });
         setResult(enrichmentResult);
       } else {
@@ -354,6 +371,7 @@ export function HomePage() {
           degiroTransactionsCsv,
           binanceTransactionsXlsx,
           revolutConsolidatedPdf,
+          etradeGainLossXlsx,
         });
         setTablesResult(brokerResult);
       }

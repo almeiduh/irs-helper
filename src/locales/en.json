@@ -53,6 +53,11 @@
       "freedom24_no_rows": "No dividend or trade data found in \"{{fileName}}\". Please verify this is a Freedom24 Trade Report.",
       "ibkr_wrongFile": "\"{{fileName}}\" does not appear to be an IBKR Activity Statement. Please upload the correct file.",
       "ibkr_noData": "No trades, dividends, or interest data found in \"{{fileName}}\". Please verify this is an IBKR Activity Statement.",
+      "etrade_wrong_file": "\"{{fileName}}\" does not appear to be a supported E*TRADE gain/loss workbook export.",
+      "etrade_no_rows": "No supported E*TRADE sell rows were found in \"{{fileName}}\".",
+      "etrade_unsupported_row": "\"{{fileName}}\" contains an unsupported or inconsistent E*TRADE workbook row ({{fieldName}}).",
+      "etrade_fx_download_failed": "Failed to download ECB USD/EUR exchange rates while processing \"{{fileName}}\".",
+      "etrade_missing_fx_rate": "\"{{fileName}}\" requires an ECB USD/EUR rate for {{date}} or the next published ECB day, but no later rate was available.",
       "file_too_large": "\"{{fileName}}\" is too large to process safely. Please provide a smaller PDF.",
       "too_many_pages": "\"{{fileName}}\" has too many pages to process safely.",
       "binance_wrong_file": "\"{{fileName}}\" does not appear to be a supported Binance Transaction History export. Expected a header row with columns such as UTC Time, Operation, Coin, and Change.",
@@ -84,6 +89,8 @@
     "t212_report": "Annual Statement PDF",
     "degiro_lane": "DEGIRO",
     "degiro_report": "Transactions CSV",
+    "etrade_lane": "E*TRADE",
+    "etrade_report": "Gain/Loss Workbook (.xlsx)",
     "optional": "(Optional)",
     "click_to_change": "Click to change",
     "drag_drop": "Drag & drop or click to browse",
@@ -129,7 +136,11 @@
     "revolut_warning_title": "Parsing Limitations",
     "revolut_warning_1": "Crypto transactions are reported in USD only — declare crypto gains manually using ECB exchange rates.",
     "revolut_warning_2": "ADR stocks (e.g. ASML) use the trading country (US) — verify the country code matches the issuer's country.",
-    "revolut_warning_3": "Money market fund service fees are not deductible — only gross interest is reported."
+    "revolut_warning_3": "Money market fund service fees are not deductible — only gross interest is reported.",
+    "etrade_warning_title": "Parsing Limitations",
+    "etrade_warning_1": "Only E*TRADE gain/loss workbook `.xlsx` exports with `Sell` rows are supported.",
+    "etrade_warning_2": "Values are converted from USD to EUR using same-day ECB USD/EUR rates when available, otherwise the next published ECB day, fetched at runtime and cached in your browser.",
+    "etrade_warning_3": "All imported E*TRADE rows are treated as U.S. share sales in Annex J 9.2A with code G01."
   },
   "warnings": {
     "ibkr_title": "IBKR Limitations",

@@ -53,6 +53,11 @@
       "freedom24_no_rows": "Não foram encontrados dados de dividendos ou transações em \"{{fileName}}\". Verifique que este é um Relatório da Freedom24.",
       "ibkr_wrongFile": "\"{{fileName}}\" não parece ser um Extrato de Atividade IBKR. Por favor, carregue o ficheiro correto.",
       "ibkr_noData": "Não foram encontrados dados de transações, dividendos ou juros em \"{{fileName}}\". Verifique que este é um Extrato de Atividade IBKR.",
+      "etrade_wrong_file": "\"{{fileName}}\" não parece ser uma exportação de workbook de mais-valias E*TRADE suportada.",
+      "etrade_no_rows": "Não foram encontradas linhas `Sell` E*TRADE suportadas em \"{{fileName}}\".",
+      "etrade_unsupported_row": "\"{{fileName}}\" contém uma linha do workbook E*TRADE não suportada ou inconsistente ({{fieldName}}).",
+      "etrade_fx_download_failed": "Falhou a descarga das taxas de câmbio ECB USD/EUR ao processar \"{{fileName}}\".",
+      "etrade_missing_fx_rate": "\"{{fileName}}\" requer uma taxa ECB USD/EUR para {{date}} ou para o dia ECB publicado seguinte, mas não existia nenhuma taxa posterior disponível.",
       "file_too_large": "\"{{fileName}}\" é demasiado grande para ser processado com segurança. Forneça um PDF menor.",
       "too_many_pages": "\"{{fileName}}\" tem demasiadas páginas para ser processado com segurança.",
       "binance_wrong_file": "\"{{fileName}}\" não parece ser um export suportado do Histórico de Transações Binance. Esperava uma linha de cabeçalho com colunas como UTC Time, Operation, Coin e Change.",
@@ -82,6 +87,8 @@
     "tr_report": "Relatório de Impostos",
     "t212_lane": "Trading 212",
     "t212_report": "Relatório Anual (Annual Statement)",
+    "etrade_lane": "E*TRADE",
+    "etrade_report": "Workbook de Mais-valias (.xlsx)",
     "optional": "(Opcional)",
     "click_to_change": "Clique para alterar",
     "drag_drop": "Arraste e solte ou clique para navegar",
@@ -129,7 +136,11 @@
     "revolut_warning_title": "Limitações de processamento",
     "revolut_warning_1": "As operações de cripto são reportadas apenas em USD — declare os ganhos de cripto manualmente usando taxas de câmbio do BCE.",
     "revolut_warning_2": "Ações ADR (ex.: ASML) usam o país de negociação (EUA) — verifique se o código do país corresponde ao país do emissor.",
-    "revolut_warning_3": "As comissões dos fundos monetários não são dedutíveis — apenas os juros brutos são reportados."
+    "revolut_warning_3": "As comissões dos fundos monetários não são dedutíveis — apenas os juros brutos são reportados.",
+    "etrade_warning_title": "Limitações de Leitura",
+    "etrade_warning_1": "Apenas são suportados workbooks `.xlsx` de mais-valias E*TRADE com linhas `Sell`.",
+    "etrade_warning_2": "Os valores são convertidos de USD para EUR com taxas ECB USD/EUR do próprio dia quando disponíveis, caso contrário do dia ECB publicado seguinte, descarregadas em runtime e em cache no browser.",
+    "etrade_warning_3": "Todas as linhas E*TRADE importadas são tratadas como vendas de ações dos EUA no Anexo J 9.2A com o código G01."
   },
   "warnings": {
     "ibkr_title": "Limitações IBKR",

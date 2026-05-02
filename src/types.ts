@@ -1,5 +1,5 @@
 /** Broker labels used in enrichment summaries. */
-export type BrokerName = 'XTB' | 'Trade Republic' | 'Trading 212' | 'ActivoBank' | 'Freedom24' | 'IBKR' | 'DEGIRO' | 'Binance' | 'Revolut';
+export type BrokerName = 'XTB' | 'Trade Republic' | 'Trading 212' | 'ActivoBank' | 'Freedom24' | 'IBKR' | 'DEGIRO' | 'Binance' | 'Revolut' | 'E*TRADE';
 
 /** Common fields shared by IRS table rows that include country information. */
 export interface BaseTaxRow {

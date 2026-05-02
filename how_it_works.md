@@ -2,7 +2,7 @@
 
 The process is simple and has three steps.
 
-The application runs entirely on your computer. No files are sent to servers, so you can even disconnect from the internet and continue using it.
+The application runs entirely on your computer and no uploaded files are sent to servers. Most processing works offline after the app loads, but E*TRADE USD/EUR conversion may need internet access to download public ECB exchange rates when they are not already cached in your browser.
 
 ## Step 1: Obtain and upload the IRS XML file
 1. Go to the [Portuguese Tax Portal for IRS 2025 submission](https://irs.portaldasfinancas.gov.pt/app/entrega/v2026).
@@ -14,7 +14,7 @@ The application runs entirely on your computer. No files are sent to servers, so
 7. Upload that file to IRS Helper. This XML is used as the base for automatic filling and contains the structure and mandatory fields required by the Portuguese Tax Authority.
 
 ## Step 2: Upload broker reports or CSV exports
-1. Upload all relevant broker files. At the moment, XTB, Trade Republic, Trading 212, ActivoBank, Freedom24, Interactive Brokers, and DEGIRO are supported (some values are still not imported, so check the limitations on the main page).
+1. Upload all relevant broker files. At the moment, XTB, Trade Republic, Trading 212, ActivoBank, Freedom24, Interactive Brokers, DEGIRO, and E*TRADE are supported through PDF reports, CSV exports, and XLSX workbooks (some values are still not imported, so check the limitations on the main page).
 2. Click "Generate IRS Import File".
 3. The application automatically analyzes the files and extracts structured tables with your financial transactions.
 4. At the end, you can review a short report and a comparison view to confirm the changes made to the XML file.

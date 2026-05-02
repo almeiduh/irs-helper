@@ -77,6 +77,14 @@ const BROKER_BADGE_META: Array<{ match: (source: string) => boolean; meta: Broke
       sourceTagClass: 'enrichment-card__source-tag--revolut',
     },
   },
+  {
+    match: source => source.includes('e*trade') || source.includes('etrade'),
+    meta: {
+      shortLabel: 'ET',
+      badgeClass: 'broker-badge--etrade',
+      sourceTagClass: 'enrichment-card__source-tag--etrade',
+    },
+  },
 ];
 
 export function getBrokerBadgeMeta(source: string): BrokerBadgeMeta | null {
