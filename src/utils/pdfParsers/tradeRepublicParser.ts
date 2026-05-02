@@ -1,4 +1,4 @@
-import type { TaxRow8A, ParsedPdfData } from '../../types';
+import type { TaxRow, TaxRow8A, ParsedPdfData } from '../../types';
 import { BrokerParsingError } from '../parserErrors';
 import { normalizeNumber, extractPdfText, extractRows, matchesAnyMarker } from './common';
 
@@ -7,6 +7,11 @@ import { normalizeNumber, extractPdfText, extractRows, matchesAnyMarker } from '
 // ---------------------------------------------------------------------------
 
 const REGEX_8A = /(?:^|\s)\d{3}\s+(E\d{2})\s*(?:\(\d+%?\))?\s+(\d{3})\s+([\d.,-]+)\s+([\d.,-]+)(?=\s|$)/g;
+const MONEY_VALUE = String.raw`-?\d(?:[\d\s\u00a0.]*\d)?[,.]\d+`;
+const REGEX_92A = new RegExp(
+  String.raw`(?:^|\s)\d{3,}\s+(\d{3})\s+(G\d{2})\s+(\d{4})\s+(\d{1,2})\s+(\d{1,2})\s+(${MONEY_VALUE})\s+(\d{4})\s+(\d{1,2})\s+(\d{1,2})\s+(${MONEY_VALUE})\s+(${MONEY_VALUE})\s+(${MONEY_VALUE})\s+(\d{3})(?=\s|$|[A-Za-zÀ-ÿ])`,
+  'g',
+);
 
 // ---------------------------------------------------------------------------
 // Content fingerprints
@@ -32,6 +37,33 @@ function extractRows8A(pageTexts: string[]): TaxRow8A[] {
   }));
 }
 
+function normalizeMoney(value: string): string {
+  const compact = value.replace(/[\s\u00a0]/g, '');
+  if (compact.includes(',')) {
+    return compact.replace(/\./g, '').replace(',', '.');
+  }
+
+  return compact;
+}
+
+function extractRows92A(pageTexts: string[]): TaxRow[] {
+  return extractRows(pageTexts, REGEX_92A, match => ({
+    codPais: match[1],
+    codigo: match[2],
+    anoRealizacao: match[3],
+    mesRealizacao: match[4],
+    diaRealizacao: match[5],
+    valorRealizacao: normalizeMoney(match[6]),
+    anoAquisicao: match[7],
+    mesAquisicao: match[8],
+    diaAquisicao: match[9],
+    valorAquisicao: normalizeMoney(match[10]),
+    despesasEncargos: normalizeMoney(match[11]),
+    impostoPagoNoEstrangeiro: normalizeMoney(match[12]),
+    codPaisContraparte: match[13],
+  }));
+}
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -51,10 +83,11 @@ export async function parseTradeRepublicPdf(file: File): Promise<ParsedPdfData> 
   }
 
   const rows8A = extractRows8A(pageTexts);
+  const rows92A = extractRows92A(pageTexts);
 
-  if (rows8A.length === 0) {
+  if (rows8A.length === 0 && rows92A.length === 0) {
     throw new BrokerParsingError(
-      `No dividend/interest rows found in "${file.name}". Please verify this is a Trade Republic Tax Report with Quadro 8A data.`,
+      `No dividend/interest or capital gains rows found in "${file.name}". Please verify this is a Trade Republic Tax Report with Quadro 8A or 9.2A data.`,
       'parser.error.tr_no_rows',
       { fileName: file.name }
     );
@@ -62,7 +95,7 @@ export async function parseTradeRepublicPdf(file: File): Promise<ParsedPdfData> 
 
   return {
     rows8A,
-    rows92A: [],
+    rows92A,
     rows92B: [],
     rowsG9: [],
     rowsG13: [],

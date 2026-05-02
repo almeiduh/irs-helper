@@ -177,7 +177,7 @@ export async function parseRevolutConsolidatedPdf(file: File): Promise<ParsedPdf
     const gross = parseRevolutEurAmount(mmfMatch[1]);
     if (gross > 0) {
       rows8A.push({
-        codigo: 'E31',
+        codigo: 'E21',
         codPais: '372',
         rendimentoBruto: gross.toFixed(2),
         impostoPago: '0.00',

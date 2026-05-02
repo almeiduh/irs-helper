@@ -35,12 +35,12 @@ describe('parseRevolutConsolidatedPdf', () => {
     });
   });
 
-  it('extracts MMF interest as E31 row 372 with correct rounding to 2dp', async () => {
+  it('extracts MMF interest as E21 row 372 with correct rounding to 2dp', async () => {
     mockPdfDocument([{ str: REVOLUT_FULL_MOCK }]);
     const file = new File([''], 'revolut.pdf');
     const data = await parseRevolutConsolidatedPdf(file);
 
-    const mmfRow = data.rows8A.find(r => r.codigo === 'E31');
+    const mmfRow = data.rows8A.find(r => r.codigo === 'E21');
     expect(mmfRow).toBeDefined();
     expect(mmfRow!.codPais).toBe('372');
     expect(mmfRow!.rendimentoBruto).toBe('25.88');

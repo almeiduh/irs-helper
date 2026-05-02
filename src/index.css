@@ -563,6 +563,9 @@ body {
   --broker-revolut-bg: #ffffff;
   --broker-revolut-fg: #0b0b0f;
   --broker-revolut-border: #d1d5db;
+  --broker-etrade-bg: #7c2d12;
+  --broker-etrade-fg: #ffffff;
+  --broker-etrade-border: #9a3412;
 }
 
 .broker-badge--xtb {
@@ -617,6 +620,12 @@ body {
   background: var(--broker-revolut-bg);
   color: var(--broker-revolut-fg);
   border: 1px solid var(--broker-revolut-border);
+}
+
+.broker-badge--etrade {
+  background: var(--broker-etrade-bg);
+  color: var(--broker-etrade-fg);
+  border: 1px solid var(--broker-etrade-border);
 }
 
 [data-theme="light"] .broker-badge--tr {
@@ -1109,6 +1118,12 @@ body {
   background: var(--broker-revolut-bg);
   color: var(--broker-revolut-fg);
   border-color: var(--broker-revolut-border);
+}
+
+.enrichment-card__source-tag--etrade {
+  background: var(--broker-etrade-bg);
+  color: var(--broker-etrade-fg);
+  border-color: var(--broker-etrade-border);
 }
 
 .enrichment-report__annex-group {
@@ -1757,5 +1772,4 @@ body {
   align-items: center;
   gap: 0.75rem;
 }
-
 

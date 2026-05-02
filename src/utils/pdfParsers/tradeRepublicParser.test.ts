@@ -34,6 +34,36 @@ describe('parseTradeRepublicPdf', () => {
     expect(data.rowsG13.length).toBe(0);
   });
 
+  it('should extract 9.2A capital gains rows from a TR report', async () => {
+    mockPdfDocument([
+      { str: 'Trade Republic Tax Report 2025' },
+      { str: ' ' },
+      { str: '951 528 G01 2025 10 2 1 768,00 2024 1 24 1 560,00 2,00 0,0000 276Sim Não' },
+    ]);
+
+    const fakeFile = new File([''], 'tr_report.pdf');
+    const data = await parseTradeRepublicPdf(fakeFile);
+
+    expect(data.rows8A.length).toBe(0);
+    expect(data.rows92A).toEqual([{
+      codPais: '528',
+      codigo: 'G01',
+      anoRealizacao: '2025',
+      mesRealizacao: '10',
+      diaRealizacao: '2',
+      valorRealizacao: '1768.00',
+      anoAquisicao: '2024',
+      mesAquisicao: '1',
+      diaAquisicao: '24',
+      valorAquisicao: '1560.00',
+      despesasEncargos: '2.00',
+      impostoPagoNoEstrangeiro: '0.0000',
+      codPaisContraparte: '276',
+    }]);
+    expect(data.rows92B.length).toBe(0);
+    expect(data.rowsG13.length).toBe(0);
+  });
+
   it('should throw PdfParsingError when file is not a TR report', async () => {
     mockPdfDocument([
       { str: 'Some random document with no broker markers' },
