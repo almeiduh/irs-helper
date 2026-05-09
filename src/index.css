@@ -563,6 +563,9 @@ body {
   --broker-revolut-bg: #ffffff;
   --broker-revolut-fg: #0b0b0f;
   --broker-revolut-border: #d1d5db;
+  --broker-big-bg: #f97316;
+  --broker-big-fg: #ffffff;
+  --broker-big-border: #ea580c;
 }
 
 .broker-badge--xtb {
@@ -617,6 +620,12 @@ body {
   background: var(--broker-revolut-bg);
   color: var(--broker-revolut-fg);
   border: 1px solid var(--broker-revolut-border);
+}
+
+.broker-badge--big {
+  background: var(--broker-big-bg);
+  color: var(--broker-big-fg);
+  border: 1px solid var(--broker-big-border);
 }
 
 [data-theme="light"] .broker-badge--tr {
@@ -1109,6 +1118,12 @@ body {
   background: var(--broker-revolut-bg);
   color: var(--broker-revolut-fg);
   border-color: var(--broker-revolut-border);
+}
+
+.enrichment-card__source-tag--big {
+  background: var(--broker-big-bg);
+  color: var(--broker-big-fg);
+  border-color: var(--broker-big-border);
 }
 
 .enrichment-report__annex-group {
