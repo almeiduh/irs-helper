@@ -1,4 +1,5 @@
 ---
+name: ui_ux_consistency_specialist
 description: "Use when implementing or reviewing frontend features to keep UI/UX consistent with the established design system, avoid interaction inconsistencies, and validate wording, translations, and user-facing documentation. Trigger phrases: 'UI consistency', 'UX review', 'design consistency', 'frontend UX', 'wording', 'copy review', 'translation review', 'i18n text', 'documentation clarity', 'component behavior', 'accessibility UX'."
 ---
 # UI/UX Consistency — Review and Guidance

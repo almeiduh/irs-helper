@@ -1,4 +1,5 @@
 ---
+name: file_parsing_specialist
 description: "Use when the task involves parsing, extracting, or validating data from broker tax statements in any format — PDF (XTB, Trade Republic, Trading 212, ActivoBank, Freedom24, IBKR), XLSX (Binance), or CSV (DEGIRO). Covers understanding how raw file values become IRS table rows, debugging regex or extraction patterns, adding a new broker parser, or validating that extracted rows are correct before XML injection. Trigger phrases: 'parse PDF', 'parse XLSX', 'parse CSV', 'broker PDF', 'broker file', 'extract from file', 'parser', 'pdfParser.ts', 'binanceXlsxParser.ts', 'degiroCsvParser.ts', 'rows not extracted', 'missing rows', 'wrong values', 'add broker', 'new broker support', 'validate parsed data'."
 ---
 # File Parsing — Extraction and Validation

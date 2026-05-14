@@ -49,6 +49,7 @@
       "degiro_incomplete_history": "\"{{fileName}}\" is missing prior buy history required to match at least one DEGIRO sell transaction.",
       "degiro_unsupported_country": "\"{{fileName}}\" contains an unsupported ISIN country for \"{{isin}}\".",
       "degiro_unsupported_row": "\"{{fileName}}\" contains an unsupported or inconsistent DEGIRO transaction row.",
+      "degiro_pdf_wrong_file": "\"{{fileName}}\" does not appear to be a DEGIRO Annual Report. Please upload the correct file.",
       "freedom24_wrong_file": "\"{{fileName}}\" does not appear to be a Freedom24 Trade Report. Please upload the correct file.",
       "freedom24_no_rows": "No dividend or trade data found in \"{{fileName}}\". Please verify this is a Freedom24 Trade Report.",
       "ibkr_wrongFile": "\"{{fileName}}\" does not appear to be an IBKR Activity Statement. Please upload the correct file.",
@@ -62,6 +63,7 @@
     }
   },
   "parser.warning.revolut_crypto_usd_only": "Revolut crypto transactions are reported in USD only. Declare crypto gains manually using ECB exchange rates for each transaction date.",
+  "parser.warning.degiro_pdf_no_rows": "\"{{fileName}}\": No dividends or interest payments were found in the DEGIRO Annual Report.",
   "uploader": {
     "xml_lane": "Base IRS Declaration",
     "xml_file": "Select your .xml file",
@@ -84,6 +86,7 @@
     "t212_report": "Annual Statement PDF",
     "degiro_lane": "DEGIRO",
     "degiro_report": "Transactions CSV",
+    "degiro_pdf_report": "Annual Report PDF",
     "optional": "(Optional)",
     "click_to_change": "Click to change",
     "drag_drop": "Drag & drop or click to browse",
@@ -109,6 +112,7 @@
     "degiro_warning_2": "In XML enrichment mode, only sell transactions from the declaration year are imported.",
     "degiro_warning_3": "The CSV must include full buy history for each imported sell transaction.",
     "degiro_warning_4": "Counterparty country is currently defaulted because the DEGIRO CSV does not provide the buyer's residence.",
+    "degiro_warning_5": "Dividends and interest are extracted only from the Annual Report PDF, while capital gains require the Transactions CSV.",
     "freedom24_lane": "Freedom24",
     "freedom24_report": "Trade Report PDF",
     "freedom24_warning_title": "Parsing Limitations",

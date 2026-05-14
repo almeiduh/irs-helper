@@ -1,4 +1,5 @@
 ---
+name: add_broker_orchestrator
 description: "Use when a new broker needs to be added to IRS Helper. Accepts a broker tax statement (PDF, XLSX, or CSV) and orchestrates the full workflow: analysing the file, mapping income types to IRS annex tables, producing an implementation plan, and delegating coding to the developer. Trigger phrases: 'add broker', 'new broker', 'support broker', 'integrate broker', 'broker PDF support', 'broker XLSX support'."
 ---
 # Add Broker — Full Workflow

@@ -19,11 +19,11 @@ describe('parseDegiroTransactionsCsv', () => {
       anoRealizacao: '2023',
       mesRealizacao: '5',
       diaRealizacao: '31',
-      valorRealizacao: '74.49',
+      valorRealizacao: '148.98',
       anoAquisicao: '2020',
       mesAquisicao: '10',
       diaAquisicao: '2',
-      valorAquisicao: '54.00',
+      valorAquisicao: '108.00',
       despesasEncargos: '1.00',
       impostoPagoNoEstrangeiro: '0.00',
       codPaisContraparte: '620',
@@ -194,16 +194,28 @@ describe('parseDegiroTransactionsCsv', () => {
     expect(data.rows92A[0].codigo).toBe('G10');
   });
 
-  it('fails on ambiguous products that cannot be classified confidently', async () => {
+  it('defaults to G01 for plain company names (e.g. EDP SA) that lack explicit equity keywords', async () => {
+    const csv = `Data,Hora,Produto,ISIN,Bolsa de referência,Bolsa,Quantidade,Preços,,Valor local,,Valor EUR,Taxa de Câmbio,Taxa Autofx,Custos de transação e/ou taxas de terceiros,Total EUR,ID da Ordem,
+01-01-2020,10:00,EDP SA,US0000000001,EAM,XAMS,1,"10,0000",EUR,"-10,00",EUR,"-10,00",,"0,00",,"-10,00",,buy-1
+01-02-2020,10:00,EDP SA,US0000000001,EAM,XAMS,-1,"15,0000",EUR,"15,00",EUR,"15,00",,"0,00","-1,00","14,00",,sell-1
+`;
+
+    const fakeFile = new File([csv], 'degiro.csv', { type: 'text/csv' });
+    const data = await parseDegiroTransactionsCsv(fakeFile);
+
+    expect(data.rows92A[0].codigo).toBe('G01');
+  });
+
+  it('defaults to G01 for otherwise ambiguous product names', async () => {
     const csv = `Data,Hora,Produto,ISIN,Bolsa de referência,Bolsa,Quantidade,Preços,,Valor local,,Valor EUR,Taxa de Câmbio,Taxa Autofx,Custos de transação e/ou taxas de terceiros,Total EUR,ID da Ordem,
 01-01-2020,10:00,GLOBAL INCOME SECURITY,US0000000001,EAM,XAMS,1,"10,0000",EUR,"-10,00",EUR,"-10,00",,"0,00",,"-10,00",,buy-1
 01-02-2020,10:00,GLOBAL INCOME SECURITY,US0000000001,EAM,XAMS,-1,"15,0000",EUR,"15,00",EUR,"15,00",,"0,00","-1,00","14,00",,sell-1
 `;
 
     const fakeFile = new File([csv], 'degiro.csv', { type: 'text/csv' });
-    await expect(parseDegiroTransactionsCsv(fakeFile)).rejects.toMatchObject({
-      i18nKey: 'parser.error.degiro_unsupported_row',
-    });
+    const data = await parseDegiroTransactionsCsv(fakeFile);
+
+    expect(data.rows92A[0].codigo).toBe('G01');
   });
 
   it('fails on derivative-like products', async () => {
@@ -293,6 +305,21 @@ describe('parseDegiroTransactionsCsv', () => {
     await expect(parseDegiroTransactionsCsv(fakeFile)).rejects.toMatchObject({
       i18nKey: 'parser.error.degiro_unsupported_country',
     });
+  });
+
+  it('ignores rows without an order ID (such as internal exchange transfers)', async () => {
+    const csv = `Data,Hora,Produto,ISIN,Bolsa de referência,Bolsa,Quantidade,Preços,,Valor local,,Valor EUR,Taxa de Câmbio,Taxa Autofx,Custos de transação e/ou taxas de terceiros,Total EUR,ID da Ordem,
+01-01-2020,10:00,ETF,IE00B3XXRP09,EAM,XAMS,1,"10,0000",EUR,"-10,00",EUR,"-10,00",,"0,00",,"-10,00",,buy-1
+01-02-2020,10:00,ETF,IE00B3XXRP09,EAM,,-1,"15,0000",EUR,"15,00",EUR,"15,00",,"0,00",,"15,00",
+01-02-2020,10:00,ETF,IE00B3XXRP09,NSY,,1,"15,0000",EUR,"-15,00",EUR,"-15,00",,"0,00",,"-15,00",
+01-03-2020,10:00,ETF,IE00B3XXRP09,NSY,XNYS,-1,"15,0000",EUR,"15,00",EUR,"15,00",,"0,00","-1,00","14,00",,sell-1
+`;
+
+    const fakeFile = new File([csv], 'degiro.csv', { type: 'text/csv' });
+    const data = await parseDegiroTransactionsCsv(fakeFile);
+
+    expect(data.rows92A).toHaveLength(1);
+    expect(data.rows92A[0].codigo).toBe('G20');
   });
 
   it('throws degiro_wrong_file for empty CSV (headers only with no data)', async () => {

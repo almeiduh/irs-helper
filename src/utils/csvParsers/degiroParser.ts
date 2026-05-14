@@ -239,7 +239,9 @@ function classifyDegiroProductCode(product: string): string {
     return 'G01';
   }
 
-  throw new Error('ambiguous');
+  // Fallback to equity (G01) for plain company names (e.g., "EDP SA", "INTEL CORP")
+  // that don't match explicit equity keywords but also aren't funds/bonds/derivatives.
+  return 'G01';
 }
 
 function roundMoney(value: number): number {
@@ -279,7 +281,10 @@ function validateHeaders(headers: string[], fileName: string): void {
 }
 
 function parseTradeRows(fileName: string, rows: string[][]): CsvTradeRow[] {
-  return rows.map((row, index) => {
+  const parsedRows: CsvTradeRow[] = [];
+
+  for (let index = 0; index < rows.length; index++) {
+    const row = rows[index];
     const date = (row[0] ?? '').trim();
     const time = (row[1] ?? '').trim();
     const isin = (row[3] ?? '').trim();
@@ -291,12 +296,15 @@ function parseTradeRows(fileName: string, rows: string[][]): CsvTradeRow[] {
     const orderId = (row[17] || row[16] || '').trim();
     const costEur = autoFxEur + brokerFeeEur;
 
+    if (!orderId) {
+      continue;
+    }
+
     if (
       !date ||
       !time ||
       !isin ||
       quantity === 0 ||
-      !orderId ||
       !isValidDate(date) ||
       !isValidTime(time) ||
       !Number.isFinite(quantity) ||
@@ -312,7 +320,7 @@ function parseTradeRows(fileName: string, rows: string[][]): CsvTradeRow[] {
       );
     }
 
-    return {
+    parsedRows.push({
       date,
       time,
       product: (row[2] ?? '').trim(),
@@ -323,15 +331,17 @@ function parseTradeRows(fileName: string, rows: string[][]): CsvTradeRow[] {
       costEur,
       orderId,
       sourceIndex: index,
-    };
-  });
+    });
+  }
+
+  return parsedRows;
 }
 
 function consolidateTradeEvents(fileName: string, rows: CsvTradeRow[]): TradeEvent[] {
   const grouped = new Map<string, CsvTradeRow[]>();
 
   for (const row of rows) {
-    const key = `${row.orderId}::${row.date}::${row.time}::${row.isin}::${row.quantity}::${row.price}`;
+    const key = `${row.orderId}::${row.date}::${row.isin}::${row.price}`;
     const group = grouped.get(key) ?? [];
     group.push(row);
     grouped.set(key, group);
@@ -339,10 +349,7 @@ function consolidateTradeEvents(fileName: string, rows: CsvTradeRow[]): TradeEve
 
   return [...grouped.values()].map(group => {
     const [first] = group;
-    const conflictingRow = group.find(row =>
-      row.product !== first.product ||
-      Math.abs(row.valueEur - first.valueEur) > 0.000001
-    );
+    const conflictingRow = group.find(row => row.product !== first.product);
 
     if (conflictingRow) {
       throw new BrokerParsingError(
@@ -357,10 +364,10 @@ function consolidateTradeEvents(fileName: string, rows: CsvTradeRow[]): TradeEve
       time: first.time,
       product: first.product,
       isin: first.isin,
-      quantity: first.quantity,
+      quantity: roundMoney(group.reduce((total, row) => total + row.quantity, 0)),
       price: first.price,
-      valueEur: Math.abs(first.valueEur),
-      costEur: group.reduce((total, row) => total + row.costEur, 0),
+      valueEur: roundMoney(group.reduce((total, row) => total + Math.abs(row.valueEur), 0)),
+      costEur: roundMoney(group.reduce((total, row) => total + row.costEur, 0)),
       sourceIndex: Math.min(...group.map(row => row.sourceIndex)),
     };
   }).sort((left, right) => {

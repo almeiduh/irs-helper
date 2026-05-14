@@ -9,7 +9,14 @@ const MAX_PDF_BYTES = 50 * 1024 * 1024;
 const MAX_PDF_PAGES = 200;
 
 export function normalizeNumber(value: string): string {
-  return value.replace(/,/g, '.');
+  return value.replace(/\s/g, '').replace(/,/g, '.');
+}
+
+export function formatMoney(value: number | string): string {
+  if (typeof value === 'string') {
+    return parseFloat(value).toFixed(2);
+  }
+  return value.toFixed(2);
 }
 
 function validatePdfSize(file: File): void {

@@ -1,4 +1,5 @@
 ---
+name: irs_annexes_specialist
 description: "Use when questions involve Portuguese IRS Annex G or Annex J filling rules, field codes, income codes, country codes, capital gains reporting, dividends, interest, CFDs, or how data from international brokers (XTB, Trade Republic, Trading 212, ActivoBank, Freedom24 or others) maps to IRS declaration tables. Trigger phrases: 'which annex', 'which table', 'which code', 'Quadro 8A', 'Quadro 9.2', 'Anexo G', 'Anexo J', 'IRS filling', 'income code', 'country code', 'broker PDF', 'capital gains Portugal', 'dividends IRS'."
 ---
 # Portuguese IRS Annexes — Field Mapping Reference

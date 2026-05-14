@@ -6,10 +6,15 @@ import { parseTrading212Pdf } from './pdfParsers/trading212Parser';
 import { parseActivoBankPdf } from './pdfParsers/activoBankParser';
 
 const sampleCsv = `Data,Hora,Produto,ISIN,Bolsa de referência,Bolsa,Quantidade,Preços,,Valor local,,Valor EUR,Taxa de Câmbio,Taxa Autofx,Custos de transação e/ou taxas de terceiros,Total EUR,ID da Ordem,
-31-05-2023,09:04,VANGUARD S&P 500 UCITS ETF USD DIS,IE00B3XXRP09,EAM,XAMS,-1,"74,4890",EUR,"74,49",EUR,"74,49",,"0,00",,"74,49",,7de27f2e-430f-4bd0-9110-af75f4c65a89
-31-05-2023,09:04,VANGUARD S&P 500 UCITS ETF USD DIS,IE00B3XXRP09,EAM,XAMS,-1,"74,4890",EUR,"74,49",EUR,"74,49",,"0,00","-1,00","73,49",,7de27f2e-430f-4bd0-9110-af75f4c65a89
+31-05-2025,09:04,VANGUARD S&P 500 UCITS ETF USD DIS,IE00B3XXRP09,EAM,XAMS,-1,"74,4890",EUR,"74,49",EUR,"74,49",,"0,00",,"74,49",,7de27f2e-430f-4bd0-9110-af75f4c65a89
+31-05-2025,09:04,VANGUARD S&P 500 UCITS ETF USD DIS,IE00B3XXRP09,EAM,XAMS,-1,"74,4890",EUR,"74,49",EUR,"74,49",,"0,00","-1,00","73,49",,7de27f2e-430f-4bd0-9110-af75f4c65a89
 02-10-2020,09:47,VANGUARD S&P 500 UCITS ETF USD DIS,IE00B3XXRP09,EAM,XAMS,2,"54,0000",EUR,"-108,00",EUR,"-108,00",,"0,00",,"-108,00",,a5d2688d-38db-41cd-a9a0-681f778201d4
 `;
+
+vi.mock('pdfjs-dist', () => ({
+  getDocument: vi.fn(),
+  GlobalWorkerOptions: {},
+}));
 
 vi.mock('./pdfParsers/xtbParser', () => ({
   parseXtbCapitalGainsPdf: vi.fn(),
@@ -30,6 +35,9 @@ vi.mock('./pdfParsers/freedom24Parser', () => ({
 vi.mock('./pdfParsers/ibkrParser', () => ({
   parseIbkrPdf: vi.fn(),
 }));
+vi.mock('./pdfParsers/degiroParser', () => ({
+  parseDegiroPdf: vi.fn(),
+}));
 vi.mock('./pdfParsers/revolutParser', () => ({
   parseRevolutConsolidatedPdf: vi.fn(),
 }));
@@ -43,7 +51,7 @@ describe('processBrokerFiles', () => {
     expect(result.sources.table92A).toEqual(['DEGIRO']);
   });
 
-  it('keeps DEGIRO rows from all years when no target year is supplied', async () => {
+  it('filters DEGIRO rows to 2025 by default when no target year is supplied', async () => {
     const multiYearCsv = `Data,Hora,Produto,ISIN,Bolsa de referência,Bolsa,Quantidade,Preços,,Valor local,,Valor EUR,Taxa de Câmbio,Taxa Autofx,Custos de transação e/ou taxas de terceiros,Total EUR,ID da Ordem,
 15-12-2022,10:00,ETF,IE00B3XXRP09,EAM,XAMS,1,"50,0000",EUR,"-50,00",EUR,"-50,00",,"0,00","-0,50","-50,50",,buy-1
 15-01-2024,10:00,ETF,IE00B3XXRP09,EAM,XAMS,-1,"75,0000",EUR,"75,00",EUR,"75,00",,"0,00","-1,00","74,00",,sell-1
@@ -53,8 +61,8 @@ describe('processBrokerFiles', () => {
     const degiroTransactionsCsv = new File([multiYearCsv], 'degiro.csv', { type: 'text/csv' });
     const result = await processBrokerFiles({ degiroTransactionsCsv });
 
-    expect(result.parsedData.rows92A).toHaveLength(2);
-    expect(result.parsedData.rows92A.map(row => row.anoRealizacao)).toEqual(['2024', '2025']);
+    expect(result.parsedData.rows92A).toHaveLength(1);
+    expect(result.parsedData.rows92A.map(row => row.anoRealizacao)).toEqual(['2025']);
   });
 });
 

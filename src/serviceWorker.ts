@@ -2,7 +2,7 @@
 
 declare const self: ServiceWorkerGlobalScope;
 
-const CACHE_NAME = 'irs-helper-v17';
+const CACHE_NAME = 'irs-helper-v18';
 const URLS_TO_CACHE = [
   '/',
   '/index.html',

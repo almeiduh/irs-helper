@@ -1,4 +1,5 @@
 ---
+name: developer
 description: "Use when implementing new features, modifying existing code, fixing bugs, adding tests, or improving coverage in the IRS Helper codebase. This is the primary coding skill for all React, TypeScript, and service worker changes. Trigger phrases: 'add feature', 'implement', 'modify', 'fix bug', 'refactor', 'add tests', 'update component', 'new parser', 'change behavior', 'cover with tests'."
 ---
 # Developer — React/TypeScript Implementation
