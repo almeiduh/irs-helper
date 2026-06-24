@@ -288,7 +288,7 @@ function roundPartsPreservingTotal(values: number[]): number[] {
 
 function detectFormat(
   firstLine: string,
-  fileName: string,
+  _fileName: string,
 ): { delimiter: ',' | ';'; format: CsvFormat } | null {
   const v1Headers = firstLine.split(',').map(h => h.trim());
   if (
