@@ -563,6 +563,9 @@ body {
   --broker-revolut-bg: #ffffff;
   --broker-revolut-fg: #0b0b0f;
   --broker-revolut-border: #d1d5db;
+  --broker-openbank-bg: #004481;
+  --broker-openbank-fg: #ffffff;
+  --broker-openbank-border: #003366;
 }
 
 .broker-badge--xtb {
@@ -617,6 +620,12 @@ body {
   background: var(--broker-revolut-bg);
   color: var(--broker-revolut-fg);
   border: 1px solid var(--broker-revolut-border);
+}
+
+.broker-badge--openbank {
+  background: var(--broker-openbank-bg);
+  color: var(--broker-openbank-fg);
+  border: 1px solid var(--broker-openbank-border);
 }
 
 [data-theme="light"] .broker-badge--tr {
@@ -1109,6 +1118,12 @@ body {
   background: var(--broker-revolut-bg);
   color: var(--broker-revolut-fg);
   border-color: var(--broker-revolut-border);
+}
+
+.enrichment-card__source-tag--openbank {
+  background: var(--broker-openbank-bg);
+  color: var(--broker-openbank-fg);
+  border-color: var(--broker-openbank-border);
 }
 
 .enrichment-report__annex-group {

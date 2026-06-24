@@ -59,7 +59,9 @@
       "binance_wrong_file": "\"{{fileName}}\" não parece ser um export suportado do Histórico de Transações Binance. Esperava uma linha de cabeçalho com colunas como UTC Time, Operation, Coin e Change.",
       "binance_no_rows": "Não foram encontradas mais-valias de criptoativos em \"{{fileName}}\". Verifique se este export Binance contém transações de compra/venda.",
       "binance_no_sells": "\"{{fileName}}\" contém compras de criptoativos mas nenhuma venda por EUR. Apenas vendas de cripto por EUR geram linhas no IRS.",
-      "revolut_wrong_file": "\"{{fileName}}\" não parece ser um Extrato Consolidado da Revolut. Por favor, carregue o ficheiro correto."
+      "revolut_wrong_file": "\"{{fileName}}\" não parece ser um Extrato Consolidado da Revolut. Por favor, carregue o ficheiro correto.",
+      "openbank_wrong_file": "\"{{fileName}}\" não parece ser um relatório fiscal do OpenBank. Por favor, carregue o ficheiro correto.",
+      "openbank_no_rows": "Não foram encontradas linhas de mais-valias em \"{{fileName}}\". Verifique que este é um relatório de mais-valias do OpenBank."
     }
   },
   "parser.warning.revolut_crypto_usd_only": "As operações de cripto da Revolut são reportadas apenas em USD. Declare os ganhos de cripto manualmente usando as taxas de câmbio do BCE para cada data de transação.",
@@ -133,7 +135,11 @@
     "revolut_warning_title": "Limitações de processamento",
     "revolut_warning_1": "As operações de cripto são reportadas apenas em USD — declare os ganhos de cripto manualmente usando taxas de câmbio do BCE.",
     "revolut_warning_2": "Ações ADR (ex.: ASML) usam o país de negociação (EUA) — verifique se o código do país corresponde ao país do emissor.",
-    "revolut_warning_3": "As comissões dos fundos monetários não são dedutíveis — apenas os juros brutos são reportados."
+    "revolut_warning_3": "As comissões dos fundos monetários não são dedutíveis — apenas os juros brutos são reportados.",
+    "openbank_lane": "OpenBank",
+    "openbank_report": "Relatório Fiscal de Mais-valias PDF",
+    "openbank_warning_1": "Este relatório contém apenas mais-valias (Quadro 9.2 A). Dividendos e outros rendimentos não são extraídos.",
+    "openbank_warning_2": "O país da contraparte é preenchido por defeito com o país de origem, uma vez que não é fornecido no relatório."
   },
   "warnings": {
     "ibkr_title": "Limitações IBKR",

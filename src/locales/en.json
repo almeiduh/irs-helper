@@ -59,7 +59,9 @@
       "binance_wrong_file": "\"{{fileName}}\" does not appear to be a supported Binance Transaction History export. Expected a header row with columns such as UTC Time, Operation, Coin, and Change.",
       "binance_no_rows": "No crypto capital gains found in \"{{fileName}}\". Verify this Binance export contains Buy/Sell transactions.",
       "binance_no_sells": "\"{{fileName}}\" contains crypto purchases but no sales for EUR. Only sales of crypto for EUR generate IRS rows.",
-      "revolut_wrong_file": "\"{{fileName}}\" does not appear to be a Revolut Consolidated Statement. Please upload the correct file."
+      "revolut_wrong_file": "\"{{fileName}}\" does not appear to be a Revolut Consolidated Statement. Please upload the correct file.",
+      "openbank_wrong_file": "\"{{fileName}}\" does not appear to be an OpenBank tax report. Please upload the correct file.",
+      "openbank_no_rows": "No capital gains rows found in \"{{fileName}}\". Please verify this is an OpenBank capital gains report."
     }
   },
   "parser.warning.revolut_crypto_usd_only": "Revolut crypto transactions are reported in USD only. Declare crypto gains manually using ECB exchange rates for each transaction date.",
@@ -133,7 +135,11 @@
     "revolut_warning_title": "Parsing Limitations",
     "revolut_warning_1": "Crypto transactions are reported in USD only — declare crypto gains manually using ECB exchange rates.",
     "revolut_warning_2": "ADR stocks (e.g. ASML) use the trading country (US) — verify the country code matches the issuer's country.",
-    "revolut_warning_3": "Money market fund service fees are not deductible — only gross interest is reported."
+    "revolut_warning_3": "Money market fund service fees are not deductible — only gross interest is reported.",
+    "openbank_lane": "OpenBank",
+    "openbank_report": "Capital Gains Tax Report PDF",
+    "openbank_warning_1": "This report only contains capital gains (Quadro 9.2 A). Dividends and other income types are not extracted.",
+    "openbank_warning_2": "The counterparty country defaults to the source country since it is not provided in the report."
   },
   "warnings": {
     "ibkr_title": "IBKR Limitations",

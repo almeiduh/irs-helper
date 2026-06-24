@@ -5,7 +5,7 @@ import { parseActivoBankPdf } from './pdfParsers/activoBankParser';
 import { parseFreedom24Pdf } from './pdfParsers/freedom24Parser';
 import { parseIbkrPdf } from './pdfParsers/ibkrParser';
 import { parseRevolutConsolidatedPdf } from './pdfParsers/revolutParser';
-import { parseDegiroPdf } from './pdfParser';
+import { parseDegiroPdf, parseOpenBankPdf } from './pdfParser';
 import { parseDegiroTransactionsCsv } from './csvParsers/degiroParser';
 import { parseBinanceTransactionsXlsx } from './xlsxParsers/binanceParser';
 import { enrichXmlWithGains } from './xmlModifier';
@@ -26,6 +26,7 @@ export interface ProcessTaxFilesInput {
   degiroPdf?: File | null;
   binanceTransactionsXlsx?: File | null;
   revolutConsolidatedPdf?: File | null;
+  openBankPdf?: File | null;
 }
 
 export interface ProcessBrokerFilesInput {
@@ -40,6 +41,7 @@ export interface ProcessBrokerFilesInput {
   degiroPdf?: File | null;
   binanceTransactionsXlsx?: File | null;
   revolutConsolidatedPdf?: File | null;
+  openBankPdf?: File | null;
 }
 
 export interface BrokerFilesResult {
@@ -216,6 +218,11 @@ export async function processTaxFiles(input: ProcessTaxFilesInput): Promise<Enri
       parser: parseRevolutConsolidatedPdf,
       brokerName: 'Revolut',
     },
+    {
+      file: input.openBankPdf,
+      parser: parseOpenBankPdf,
+      brokerName: 'OpenBank',
+    },
   ];
 
   for (const parseJob of parseJobs) {
@@ -315,6 +322,11 @@ export async function processBrokerFiles(input: ProcessBrokerFilesInput): Promis
       file: input.revolutConsolidatedPdf,
       parser: parseRevolutConsolidatedPdf,
       brokerName: 'Revolut',
+    },
+    {
+      file: input.openBankPdf,
+      parser: parseOpenBankPdf,
+      brokerName: 'OpenBank',
     },
   ];
 
