@@ -45,8 +45,10 @@ export function HomePage() {
   const [freedom24Pdf, setFreedom24Pdf] = useState<File | null>(null);
   const [ibkrPdf, setIbkrPdf] = useState<File | null>(null);
   const [degiroTransactionsCsv, setDegiroTransactionsCsv] = useState<File | null>(null);
+  const [degiroPdf, setDegiroPdf] = useState<File | null>(null);
   const [binanceTransactionsXlsx, setBinanceTransactionsXlsx] = useState<File | null>(null);
   const [revolutConsolidatedPdf, setRevolutConsolidatedPdf] = useState<File | null>(null);
+  const [openBankPdf, setOpenBankPdf] = useState<File | null>(null);
   const [selectedBrokerIds, setSelectedBrokerIds] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<EnrichmentResult | null>(null);
@@ -123,7 +125,7 @@ export function HomePage() {
     };
   }, [showDonationPrompt]);
 
-  const hasBrokerFile = xtbCapitalGainsPdf || xtbDividendsPdf || tradeRepublicPdf || trading212Pdf || activoBankPdf || freedom24Pdf || ibkrPdf || degiroTransactionsCsv || binanceTransactionsXlsx || revolutConsolidatedPdf;
+  const hasBrokerFile = xtbCapitalGainsPdf || xtbDividendsPdf || tradeRepublicPdf || trading212Pdf || activoBankPdf || freedom24Pdf || ibkrPdf || degiroTransactionsCsv || degiroPdf || binanceTransactionsXlsx || revolutConsolidatedPdf || openBankPdf;
 
   const brokerSections: BrokerSection[] = useMemo(
     () => [
@@ -208,6 +210,7 @@ export function HomePage() {
           'uploader.degiro_warning_2',
           'uploader.degiro_warning_3',
           'uploader.degiro_warning_4',
+          'uploader.degiro_warning_5',
         ],
         uploaders: [
           {
@@ -215,6 +218,12 @@ export function HomePage() {
             accept: '.csv',
             file: degiroTransactionsCsv,
             setFile: setDegiroTransactionsCsv,
+          },
+          {
+            labelKey: 'uploader.degiro_pdf_report',
+            accept: '.pdf',
+            file: degiroPdf,
+            setFile: setDegiroPdf,
           },
         ],
       },
@@ -293,8 +302,26 @@ export function HomePage() {
           },
         ],
       },
+      {
+        id: 'openbank',
+        badge: getBrokerBadgeMeta('openbank')?.shortLabel ?? 'OB',
+        badgeClass: getBrokerBadgeMeta('openbank')?.badgeClass ?? 'broker-badge--openbank',
+        laneKey: 'uploader.openbank_lane',
+        warningKeys: [
+          'uploader.openbank_warning_1',
+          'uploader.openbank_warning_2',
+        ],
+        uploaders: [
+          {
+            labelKey: 'uploader.openbank_report',
+            accept: '.pdf',
+            file: openBankPdf,
+            setFile: setOpenBankPdf,
+          },
+        ],
+      },
     ],
-    [xtbCapitalGainsPdf, xtbDividendsPdf, tradeRepublicPdf, trading212Pdf, activoBankPdf, freedom24Pdf, ibkrPdf, degiroTransactionsCsv, binanceTransactionsXlsx, revolutConsolidatedPdf],
+    [xtbCapitalGainsPdf, xtbDividendsPdf, tradeRepublicPdf, trading212Pdf, activoBankPdf, freedom24Pdf, ibkrPdf, degiroTransactionsCsv, degiroPdf, binanceTransactionsXlsx, revolutConsolidatedPdf, openBankPdf],
   );
 
   const visibleBrokerSections = useMemo(
@@ -338,8 +365,10 @@ export function HomePage() {
           freedom24Pdf,
           ibkrPdf,
           degiroTransactionsCsv,
+          degiroPdf,
           binanceTransactionsXlsx,
           revolutConsolidatedPdf,
+          openBankPdf,
         });
         setResult(enrichmentResult);
       } else {
@@ -352,8 +381,10 @@ export function HomePage() {
           freedom24Pdf,
           ibkrPdf,
           degiroTransactionsCsv,
+          degiroPdf,
           binanceTransactionsXlsx,
           revolutConsolidatedPdf,
+          openBankPdf,
         });
         setTablesResult(brokerResult);
       }

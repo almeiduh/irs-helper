@@ -2,7 +2,7 @@ import type { ParsedPdfData, TaxRow } from '../../types';
 import { resolveCountryCodeFromIsin } from '../brokerCountries';
 import { BrokerParsingError } from '../parserErrors';
 
-const EXPECTED_HEADERS = [
+const EXPECTED_HEADERS_V1 = [
   'Data',
   'Hora',
   'Produto',
@@ -22,6 +22,27 @@ const EXPECTED_HEADERS = [
   'ID da Ordem',
   '',
 ] as const;
+
+const EXPECTED_HEADERS_V2 = [
+  'Data',
+  'Hora',
+  'Produto',
+  'ISIN',
+  'Bolsa de referência',
+  'Mercado',
+  'Quantidade',
+  'Preço',
+  '',
+  'Valor local',
+  '',
+  'Valor EUR',
+  'Taxa de câmbio',
+  'Comissão AutoFX',
+  'Comissões de transação e/ou de terceiros EUR',
+  'Total EUR',
+] as const;
+
+type CsvFormat = 'v1' | 'v2';
 
 interface CsvTradeRow {
   date: string;
@@ -72,14 +93,14 @@ interface MatchedLot {
 }
 
 const QUANTITY_EPSILON = 0.000001;
-const DATE_REGEX = /^(\d{2})-(\d{2})-(\d{4})$/;
+const DATE_REGEX = /^(\d{2})[\/-](\d{2})[\/-](\d{4})$/;
 const TIME_REGEX = /^(\d{2}):(\d{2})$/;
 const FUND_KEYWORDS = ['ETF', 'UCITS', 'FUND', 'SICAV', 'OEIC'];
 const BOND_KEYWORDS = ['BOND', 'NOTE', 'DEBT', 'OBLIGA', 'OBRIGACAO'];
 const EQUITY_KEYWORDS = ['SHARE', 'SHARES', 'STOCK', 'ORD', 'ORDINARY', 'COMMON', 'ADR', 'ADS'];
 const UNSUPPORTED_PRODUCT_KEYWORDS = ['CFD', 'OPTION', 'FUTURE', 'WARRANT', 'TURBO', 'CERTIFICATE', 'SWAP'];
 
-function parseCsv(text: string): string[][] {
+function parseCsv(text: string, delimiter: ',' | ';' = ','): string[][] {
   const rows: string[][] = [];
   let currentRow: string[] = [];
   let currentField = '';
@@ -107,7 +128,7 @@ function parseCsv(text: string): string[][] {
       continue;
     }
 
-    if (char === ',') {
+    if (char === delimiter) {
       currentRow.push(currentField);
       currentField = '';
       continue;
@@ -196,6 +217,10 @@ function isValidDate(date: string): boolean {
     parsed.getUTCDate() === day;
 }
 
+function normalizeDate(date: string): string {
+  return date.replace(/\//g, '-');
+}
+
 function isValidTime(time: string): boolean {
   const match = time.match(TIME_REGEX);
   if (!match) {
@@ -239,7 +264,9 @@ function classifyDegiroProductCode(product: string): string {
     return 'G01';
   }
 
-  throw new Error('ambiguous');
+  // Fallback to equity (G01) for plain company names (e.g., "EDP SA", "INTEL CORP")
+  // that don't match explicit equity keywords but also aren't funds/bonds/derivatives.
+  return 'G01';
 }
 
 function roundMoney(value: number): number {
@@ -259,28 +286,35 @@ function roundPartsPreservingTotal(values: number[]): number[] {
   });
 }
 
-function validateHeaders(headers: string[], fileName: string): void {
-  if (headers.length !== EXPECTED_HEADERS.length) {
-    throw new BrokerParsingError(
-      `"${fileName}" does not appear to be a supported DEGIRO transactions CSV export.`,
-      'parser.error.degiro_wrong_file',
-      { fileName }
-    );
+function detectFormat(
+  firstLine: string,
+  _fileName: string,
+): { delimiter: ',' | ';'; format: CsvFormat } | null {
+  const v1Headers = firstLine.split(',').map(h => h.trim());
+  if (
+    v1Headers.length === EXPECTED_HEADERS_V1.length &&
+    v1Headers.every((h, i) => h === EXPECTED_HEADERS_V1[i])
+  ) {
+    return { delimiter: ',', format: 'v1' };
   }
 
-  const matches = headers.every((header, index) => header.trim() === EXPECTED_HEADERS[index]);
-  if (!matches) {
-    throw new BrokerParsingError(
-      `"${fileName}" does not appear to be a supported DEGIRO transactions CSV export.`,
-      'parser.error.degiro_wrong_file',
-      { fileName }
-    );
+  const v2Headers = firstLine.split(';').map(h => h.trim());
+  if (
+    v2Headers.length === EXPECTED_HEADERS_V2.length &&
+    v2Headers.every((h, i) => h === EXPECTED_HEADERS_V2[i])
+  ) {
+    return { delimiter: ';', format: 'v2' };
   }
+
+  return null;
 }
 
-function parseTradeRows(fileName: string, rows: string[][]): CsvTradeRow[] {
-  return rows.map((row, index) => {
-    const date = (row[0] ?? '').trim();
+function parseTradeRows(fileName: string, rows: string[][], format: CsvFormat): CsvTradeRow[] {
+  const parsedRows: CsvTradeRow[] = [];
+
+  for (let index = 0; index < rows.length; index++) {
+    const row = rows[index];
+    const date = normalizeDate((row[0] ?? '').trim());
     const time = (row[1] ?? '').trim();
     const isin = (row[3] ?? '').trim();
     const quantity = parseRequiredDecimal(row[6] ?? '');
@@ -288,15 +322,18 @@ function parseTradeRows(fileName: string, rows: string[][]): CsvTradeRow[] {
     const valueEur = parseRequiredDecimal(row[11] ?? '');
     const autoFxEur = parseOptionalDecimal(row[13] ?? '');
     const brokerFeeEur = parseOptionalDecimal(row[14] ?? '');
-    const orderId = (row[17] || row[16] || '').trim();
+    const orderId = format === 'v2' ? `v2-${index}` : (row[17] || row[16] || '').trim();
     const costEur = autoFxEur + brokerFeeEur;
+
+    if (!orderId) {
+      continue;
+    }
 
     if (
       !date ||
       !time ||
       !isin ||
       quantity === 0 ||
-      !orderId ||
       !isValidDate(date) ||
       !isValidTime(time) ||
       !Number.isFinite(quantity) ||
@@ -312,7 +349,7 @@ function parseTradeRows(fileName: string, rows: string[][]): CsvTradeRow[] {
       );
     }
 
-    return {
+    parsedRows.push({
       date,
       time,
       product: (row[2] ?? '').trim(),
@@ -323,15 +360,17 @@ function parseTradeRows(fileName: string, rows: string[][]): CsvTradeRow[] {
       costEur,
       orderId,
       sourceIndex: index,
-    };
-  });
+    });
+  }
+
+  return parsedRows;
 }
 
 function consolidateTradeEvents(fileName: string, rows: CsvTradeRow[]): TradeEvent[] {
   const grouped = new Map<string, CsvTradeRow[]>();
 
   for (const row of rows) {
-    const key = `${row.orderId}::${row.date}::${row.time}::${row.isin}::${row.quantity}::${row.price}`;
+    const key = `${row.orderId}::${row.date}::${row.isin}::${row.price}`;
     const group = grouped.get(key) ?? [];
     group.push(row);
     grouped.set(key, group);
@@ -339,10 +378,7 @@ function consolidateTradeEvents(fileName: string, rows: CsvTradeRow[]): TradeEve
 
   return [...grouped.values()].map(group => {
     const [first] = group;
-    const conflictingRow = group.find(row =>
-      row.product !== first.product ||
-      Math.abs(row.valueEur - first.valueEur) > 0.000001
-    );
+    const conflictingRow = group.find(row => row.product !== first.product);
 
     if (conflictingRow) {
       throw new BrokerParsingError(
@@ -357,10 +393,10 @@ function consolidateTradeEvents(fileName: string, rows: CsvTradeRow[]): TradeEve
       time: first.time,
       product: first.product,
       isin: first.isin,
-      quantity: first.quantity,
+      quantity: roundMoney(group.reduce((total, row) => total + row.quantity, 0)),
       price: first.price,
-      valueEur: Math.abs(first.valueEur),
-      costEur: group.reduce((total, row) => total + row.costEur, 0),
+      valueEur: roundMoney(group.reduce((total, row) => total + Math.abs(row.valueEur), 0)),
+      costEur: roundMoney(group.reduce((total, row) => total + row.costEur, 0)),
       sourceIndex: Math.min(...group.map(row => row.sourceIndex)),
     };
   }).sort((left, right) => {
@@ -470,7 +506,27 @@ export async function parseDegiroTransactionsCsv(
   file: File,
   options: ParseDegiroTransactionsCsvOptions = {},
 ): Promise<ParsedPdfData> {
-  const rows = parseCsv(await file.text());
+  const buffer = await file.arrayBuffer();
+  let text = new TextDecoder('utf-8', { fatal: false }).decode(buffer);
+  let firstLine = text.split('\n')[0];
+  let detected = detectFormat(firstLine, file.name);
+
+  if (!detected) {
+    text = new TextDecoder('iso-8859-1', { fatal: false }).decode(buffer);
+    firstLine = text.split('\n')[0];
+    detected = detectFormat(firstLine, file.name);
+  }
+
+  if (!detected) {
+    throw new BrokerParsingError(
+      `"${file.name}" does not appear to be a supported DEGIRO transactions CSV export.`,
+      'parser.error.degiro_wrong_file',
+      { fileName: file.name },
+    );
+  }
+
+  const { format } = detected;
+  const rows = parseCsv(text, detected.delimiter);
   const [headers, ...dataRows] = rows;
 
   if (!headers || dataRows.length === 0) {
@@ -480,10 +536,7 @@ export async function parseDegiroTransactionsCsv(
       { fileName: file.name }
     );
   }
-
-  validateHeaders(headers, file.name);
-
-  const tradeRows = parseTradeRows(file.name, dataRows);
+  const tradeRows = parseTradeRows(file.name, dataRows, format);
   const events = consolidateTradeEvents(file.name, tradeRows);
   const rows92A: TaxRow[] = [];
   const openLots = new Map<string, OpenLot[]>();

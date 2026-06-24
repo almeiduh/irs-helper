@@ -35,3 +35,6 @@ coverage/
 
 # Local AI/editor helper metadata
 .agents/
+
+# Test dir
+test-dir/

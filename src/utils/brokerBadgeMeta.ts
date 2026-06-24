@@ -77,6 +77,14 @@ const BROKER_BADGE_META: Array<{ match: (source: string) => boolean; meta: Broke
       sourceTagClass: 'enrichment-card__source-tag--revolut',
     },
   },
+  {
+    match: source => source.includes('openbank'),
+    meta: {
+      shortLabel: 'OB',
+      badgeClass: 'broker-badge--openbank',
+      sourceTagClass: 'enrichment-card__source-tag--openbank',
+    },
+  },
 ];
 
 export function getBrokerBadgeMeta(source: string): BrokerBadgeMeta | null {

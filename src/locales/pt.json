@@ -49,6 +49,7 @@
       "degiro_incomplete_history": "\"{{fileName}}\" não inclui histórico de compras suficiente para corresponder a pelo menos uma venda DEGIRO.",
       "degiro_unsupported_country": "\"{{fileName}}\" contém um país de ISIN não suportado para \"{{isin}}\".",
       "degiro_unsupported_row": "\"{{fileName}}\" contém uma linha de transação DEGIRO não suportada ou inconsistente.",
+      "degiro_pdf_wrong_file": "\"{{fileName}}\" não parece ser um Relatório Anual da DEGIRO. Por favor, carregue o ficheiro correto.",
       "freedom24_wrong_file": "\"{{fileName}}\" não parece ser um Relatório de Transações da Freedom24. Por favor, carregue o ficheiro correto.",
       "freedom24_no_rows": "Não foram encontrados dados de dividendos ou transações em \"{{fileName}}\". Verifique que este é um Relatório da Freedom24.",
       "ibkr_wrongFile": "\"{{fileName}}\" não parece ser um Extrato de Atividade IBKR. Por favor, carregue o ficheiro correto.",
@@ -58,10 +59,13 @@
       "binance_wrong_file": "\"{{fileName}}\" não parece ser um export suportado do Histórico de Transações Binance. Esperava uma linha de cabeçalho com colunas como UTC Time, Operation, Coin e Change.",
       "binance_no_rows": "Não foram encontradas mais-valias de criptoativos em \"{{fileName}}\". Verifique se este export Binance contém transações de compra/venda.",
       "binance_no_sells": "\"{{fileName}}\" contém compras de criptoativos mas nenhuma venda por EUR. Apenas vendas de cripto por EUR geram linhas no IRS.",
-      "revolut_wrong_file": "\"{{fileName}}\" não parece ser um Extrato Consolidado da Revolut. Por favor, carregue o ficheiro correto."
+      "revolut_wrong_file": "\"{{fileName}}\" não parece ser um Extrato Consolidado da Revolut. Por favor, carregue o ficheiro correto.",
+      "openbank_wrong_file": "\"{{fileName}}\" não parece ser um relatório fiscal do OpenBank. Por favor, carregue o ficheiro correto.",
+      "openbank_no_rows": "Não foram encontradas linhas de mais-valias em \"{{fileName}}\". Verifique que este é um relatório de mais-valias do OpenBank."
     }
   },
   "parser.warning.revolut_crypto_usd_only": "As operações de cripto da Revolut são reportadas apenas em USD. Declare os ganhos de cripto manualmente usando as taxas de câmbio do BCE para cada data de transação.",
+  "parser.warning.degiro_pdf_no_rows": "\"{{fileName}}\": Não foram encontrados pagamentos de dividendos ou juros no Relatório Anual da DEGIRO.",
   "uploader": {
     "xml_lane": "Declaração de IRS Base",
     "xml_file": "Selecione o seu ficheiro .xml",
@@ -104,11 +108,13 @@
     "activobank_warning_1": "Apenas linhas de \"Alienação Onerosa de Valores Mobiliários Estrangeiros — Ações\" são suportadas.",
     "degiro_lane": "DEGIRO",
     "degiro_report": "CSV de Transações",
+    "degiro_pdf_report": "PDF do Relatório Anual",
     "degiro_warning_title": "Limitações de processamento",
     "degiro_warning_1": "Apenas o formato português do CSV de transações DEGIRO é suportado.",
     "degiro_warning_2": "No modo de enriquecimento XML, apenas são importadas vendas do ano da declaração.",
     "degiro_warning_3": "O CSV tem de incluir o histórico completo de compras para cada venda importada.",
     "degiro_warning_4": "O país da contraparte é atualmente preenchido por omissão porque o CSV DEGIRO não inclui a residência do comprador.",
+    "degiro_warning_5": "Dividendos e juros são extraídos apenas do PDF do Relatório Anual, enquanto as mais-valias requerem o CSV de Transações.",
     "freedom24_lane": "Freedom24",
     "freedom24_report": "PDF do Relatório de Transações",
     "freedom24_warning_title": "Limitações de processamento",
@@ -129,7 +135,11 @@
     "revolut_warning_title": "Limitações de processamento",
     "revolut_warning_1": "As operações de cripto são reportadas apenas em USD — declare os ganhos de cripto manualmente usando taxas de câmbio do BCE.",
     "revolut_warning_2": "Ações ADR (ex.: ASML) usam o país de negociação (EUA) — verifique se o código do país corresponde ao país do emissor.",
-    "revolut_warning_3": "As comissões dos fundos monetários não são dedutíveis — apenas os juros brutos são reportados."
+    "revolut_warning_3": "As comissões dos fundos monetários não são dedutíveis — apenas os juros brutos são reportados.",
+    "openbank_lane": "OpenBank",
+    "openbank_report": "Relatório Fiscal de Mais-valias PDF",
+    "openbank_warning_1": "Este relatório contém apenas mais-valias (Quadro 9.2 A). Dividendos e outros rendimentos não são extraídos.",
+    "openbank_warning_2": "O país da contraparte é preenchido por defeito com o país de origem, uma vez que não é fornecido no relatório."
   },
   "warnings": {
     "ibkr_title": "Limitações IBKR",

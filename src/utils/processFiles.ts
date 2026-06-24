@@ -5,6 +5,7 @@ import { parseActivoBankPdf } from './pdfParsers/activoBankParser';
 import { parseFreedom24Pdf } from './pdfParsers/freedom24Parser';
 import { parseIbkrPdf } from './pdfParsers/ibkrParser';
 import { parseRevolutConsolidatedPdf } from './pdfParsers/revolutParser';
+import { parseDegiroPdf, parseOpenBankPdf } from './pdfParser';
 import { parseDegiroTransactionsCsv } from './csvParsers/degiroParser';
 import { parseBinanceTransactionsXlsx } from './xlsxParsers/binanceParser';
 import { enrichXmlWithGains } from './xmlModifier';
@@ -22,8 +23,10 @@ export interface ProcessTaxFilesInput {
   freedom24Pdf?: File | null;
   ibkrPdf?: File | null;
   degiroTransactionsCsv?: File | null;
+  degiroPdf?: File | null;
   binanceTransactionsXlsx?: File | null;
   revolutConsolidatedPdf?: File | null;
+  openBankPdf?: File | null;
 }
 
 export interface ProcessBrokerFilesInput {
@@ -35,8 +38,10 @@ export interface ProcessBrokerFilesInput {
   freedom24Pdf?: File | null;
   ibkrPdf?: File | null;
   degiroTransactionsCsv?: File | null;
+  degiroPdf?: File | null;
   binanceTransactionsXlsx?: File | null;
   revolutConsolidatedPdf?: File | null;
+  openBankPdf?: File | null;
 }
 
 export interface BrokerFilesResult {
@@ -199,6 +204,11 @@ export async function processTaxFiles(input: ProcessTaxFilesInput): Promise<Enri
       brokerName: 'DEGIRO',
     },
     {
+      file: input.degiroPdf,
+      parser: parseDegiroPdf,
+      brokerName: 'DEGIRO',
+    },
+    {
       file: input.binanceTransactionsXlsx,
       parser: parseBinanceTransactionsXlsx,
       brokerName: 'Binance',
@@ -207,6 +217,11 @@ export async function processTaxFiles(input: ProcessTaxFilesInput): Promise<Enri
       file: input.revolutConsolidatedPdf,
       parser: parseRevolutConsolidatedPdf,
       brokerName: 'Revolut',
+    },
+    {
+      file: input.openBankPdf,
+      parser: parseOpenBankPdf,
+      brokerName: 'OpenBank',
     },
   ];
 
@@ -290,7 +305,12 @@ export async function processBrokerFiles(input: ProcessBrokerFilesInput): Promis
     },
     {
       file: input.degiroTransactionsCsv,
-      parser: parseDegiroTransactionsCsv,
+      parser: file => parseDegiroTransactionsCsv(file, { targetRealizationYear: '2025' }),
+      brokerName: 'DEGIRO',
+    },
+    {
+      file: input.degiroPdf,
+      parser: parseDegiroPdf,
       brokerName: 'DEGIRO',
     },
     {
@@ -302,6 +322,11 @@ export async function processBrokerFiles(input: ProcessBrokerFilesInput): Promis
       file: input.revolutConsolidatedPdf,
       parser: parseRevolutConsolidatedPdf,
       brokerName: 'Revolut',
+    },
+    {
+      file: input.openBankPdf,
+      parser: parseOpenBankPdf,
+      brokerName: 'OpenBank',
     },
   ];
 

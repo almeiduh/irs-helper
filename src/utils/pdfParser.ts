@@ -7,3 +7,5 @@ export { parseActivoBankPdf } from './pdfParsers/activoBankParser';
 export { parseFreedom24Pdf } from './pdfParsers/freedom24Parser';
 export { parseIbkrPdf } from './pdfParsers/ibkrParser';
 export { parseRevolutConsolidatedPdf } from './pdfParsers/revolutParser';
+export { parseDegiroPdf } from './pdfParsers/degiroParser';
+export { parseOpenBankPdf } from './pdfParsers/openBankParser';

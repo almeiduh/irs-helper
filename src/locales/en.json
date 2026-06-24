@@ -49,6 +49,7 @@
       "degiro_incomplete_history": "\"{{fileName}}\" is missing prior buy history required to match at least one DEGIRO sell transaction.",
       "degiro_unsupported_country": "\"{{fileName}}\" contains an unsupported ISIN country for \"{{isin}}\".",
       "degiro_unsupported_row": "\"{{fileName}}\" contains an unsupported or inconsistent DEGIRO transaction row.",
+      "degiro_pdf_wrong_file": "\"{{fileName}}\" does not appear to be a DEGIRO Annual Report. Please upload the correct file.",
       "freedom24_wrong_file": "\"{{fileName}}\" does not appear to be a Freedom24 Trade Report. Please upload the correct file.",
       "freedom24_no_rows": "No dividend or trade data found in \"{{fileName}}\". Please verify this is a Freedom24 Trade Report.",
       "ibkr_wrongFile": "\"{{fileName}}\" does not appear to be an IBKR Activity Statement. Please upload the correct file.",
@@ -58,10 +59,13 @@
       "binance_wrong_file": "\"{{fileName}}\" does not appear to be a supported Binance Transaction History export. Expected a header row with columns such as UTC Time, Operation, Coin, and Change.",
       "binance_no_rows": "No crypto capital gains found in \"{{fileName}}\". Verify this Binance export contains Buy/Sell transactions.",
       "binance_no_sells": "\"{{fileName}}\" contains crypto purchases but no sales for EUR. Only sales of crypto for EUR generate IRS rows.",
-      "revolut_wrong_file": "\"{{fileName}}\" does not appear to be a Revolut Consolidated Statement. Please upload the correct file."
+      "revolut_wrong_file": "\"{{fileName}}\" does not appear to be a Revolut Consolidated Statement. Please upload the correct file.",
+      "openbank_wrong_file": "\"{{fileName}}\" does not appear to be an OpenBank tax report. Please upload the correct file.",
+      "openbank_no_rows": "No capital gains rows found in \"{{fileName}}\". Please verify this is an OpenBank capital gains report."
     }
   },
   "parser.warning.revolut_crypto_usd_only": "Revolut crypto transactions are reported in USD only. Declare crypto gains manually using ECB exchange rates for each transaction date.",
+  "parser.warning.degiro_pdf_no_rows": "\"{{fileName}}\": No dividends or interest payments were found in the DEGIRO Annual Report.",
   "uploader": {
     "xml_lane": "Base IRS Declaration",
     "xml_file": "Select your .xml file",
@@ -84,6 +88,7 @@
     "t212_report": "Annual Statement PDF",
     "degiro_lane": "DEGIRO",
     "degiro_report": "Transactions CSV",
+    "degiro_pdf_report": "Annual Report PDF",
     "optional": "(Optional)",
     "click_to_change": "Click to change",
     "drag_drop": "Drag & drop or click to browse",
@@ -109,6 +114,7 @@
     "degiro_warning_2": "In XML enrichment mode, only sell transactions from the declaration year are imported.",
     "degiro_warning_3": "The CSV must include full buy history for each imported sell transaction.",
     "degiro_warning_4": "Counterparty country is currently defaulted because the DEGIRO CSV does not provide the buyer's residence.",
+    "degiro_warning_5": "Dividends and interest are extracted only from the Annual Report PDF, while capital gains require the Transactions CSV.",
     "freedom24_lane": "Freedom24",
     "freedom24_report": "Trade Report PDF",
     "freedom24_warning_title": "Parsing Limitations",
@@ -129,7 +135,11 @@
     "revolut_warning_title": "Parsing Limitations",
     "revolut_warning_1": "Crypto transactions are reported in USD only — declare crypto gains manually using ECB exchange rates.",
     "revolut_warning_2": "ADR stocks (e.g. ASML) use the trading country (US) — verify the country code matches the issuer's country.",
-    "revolut_warning_3": "Money market fund service fees are not deductible — only gross interest is reported."
+    "revolut_warning_3": "Money market fund service fees are not deductible — only gross interest is reported.",
+    "openbank_lane": "OpenBank",
+    "openbank_report": "Capital Gains Tax Report PDF",
+    "openbank_warning_1": "This report only contains capital gains (Quadro 9.2 A). Dividends and other income types are not extracted.",
+    "openbank_warning_2": "The counterparty country defaults to the source country since it is not provided in the report."
   },
   "warnings": {
     "ibkr_title": "IBKR Limitations",
