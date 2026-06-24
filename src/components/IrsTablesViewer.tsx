@@ -154,6 +154,7 @@ export function IrsTablesViewer({ parsedData, sources }: IrsTablesViewerProps) {
       { header: 'Despesas e Encargos', accessor: row => row.despesasEncargos },
       { header: 'Imposto pago no Estrangeiro', accessor: row => row.impostoPagoNoEstrangeiro },
       { header: 'País da Contraparte', accessor: row => row.codPaisContraparte },
+      { header: 'Val. Mob. Neg.', accessor: row => row.valMobAdmNeg ?? '' },
     ],
     totals: [
       { label: 'report.totals.realisation_value', value: formatCurrency(sumBy(parsedData.rows92A, r => r.valorRealizacao)) },

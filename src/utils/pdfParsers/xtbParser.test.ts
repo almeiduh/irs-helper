@@ -16,7 +16,7 @@ describe('parseXtbCapitalGainsPdf', () => {
     mockPdfDocument([
       { str: 'Quadro 9.2 A - Alienação Mais-Valias' },
       { str: ' ' },
-      { str: '951 372 G20 2025 6 16 105.84 2024 6 26 104.04 0.00 0.00 620' },
+      { str: '951 372 G20 2025 6 16 105.84 2024 6 26 104.04 0.00 0.00 620 SIM' },
       { str: '991 G98 372 25.32 0.00 620' },
       { str: '13001 G51 A -43.94 620' },
     ]);
@@ -33,7 +33,7 @@ describe('parseXtbCapitalGainsPdf', () => {
   it('should normalize decimal values consistently in gains rows', async () => {
     mockPdfDocument([
       { str: 'Quadro 9.2 A - Alienação Mais-Valias' },
-      { str: '951 372 G20 2025 6 16 105,84 2024 6 26 104,04 0,00 0,00 620' },
+      { str: '951 372 G20 2025 6 16 105,84 2024 6 26 104,04 0,00 0,00 620 SIM' },
       { str: '991 G98 372 25,32 0,00 620' },
       { str: '13001 G51 A -43,94 620' },
     ]);
@@ -42,6 +42,7 @@ describe('parseXtbCapitalGainsPdf', () => {
     const data = await parseXtbCapitalGainsPdf(fakeFile);
 
     expect(data.rows92A[0].valorRealizacao).toBe('105.84');
+    expect(data.rows92A[0].valMobAdmNeg).toBe('SIM');
     expect(data.rows92B[0].rendimentoLiquido).toBe('25.32');
     expect(data.rowsG13[0].rendimentoLiquido).toBe('-43.94');
   });
@@ -49,8 +50,8 @@ describe('parseXtbCapitalGainsPdf', () => {
   it('should parse 9.2A rows whose source line number is above 999', async () => {
     mockPdfDocument([
       { str: 'Quadro 9.2 A - Alienacao Mais-Valias' },
-      { str: '1000 372 G20 2025 6 16 105.84 2024 6 26 104.04 0.00 0.00 620' },
-      { str: '1001 372 G20 2025 6 17 205.84 2024 6 27 154.04 1.00 0.00 620' },
+      { str: '1000 372 G20 2025 6 16 105.84 2024 6 26 104.04 0.00 0.00 620 SIM' },
+      { str: '1001 372 G20 2025 6 17 205.84 2024 6 27 154.04 1.00 0.00 620 SIM' },
     ]);
 
     const fakeFile = new File([''], 'xtb_gains_above_999.pdf');
@@ -107,7 +108,7 @@ describe('parseXtbDividendsPdf', () => {
   it('should throw PdfParsingError when a gains PDF is uploaded in dividends slot', async () => {
     mockPdfDocument([
       { str: 'Quadro 9.2 A - Alienação Mais-Valias Capital Gains' },
-      { str: '951 372 G20 2025 6 16 105.84 2024 6 26 104.04 0.00 0.00 620' },
+      { str: '951 372 G20 2025 6 16 105.84 2024 6 26 104.04 0.00 0.00 620 SIM' },
     ]);
 
     const fakeFile = new File([''], 'xtb_gains.pdf');

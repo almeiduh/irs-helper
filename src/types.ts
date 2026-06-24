@@ -22,6 +22,8 @@ export interface TaxRow extends BaseTaxRow {
   despesasEncargos: string;
   impostoPagoNoEstrangeiro: string;
   codPaisContraparte: string;
+  /** Whether the securities are admitted to trading or are open OIC shares (SIM/NÃO). */
+  valMobAdmNeg?: string;
 }
 
 /** Anexo J - Quadro 9.2 B row (other investment income). */

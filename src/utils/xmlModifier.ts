@@ -259,7 +259,7 @@ export function enrichXmlWithGains(
         rows: rows92A,
         buildFields: (row, nLinha) => {
           const typedRow = row as TaxRow;
-          return [
+          const fields: [string, string][] = [
             ['NLinha', String(nLinha)],
             ['CodPais', typedRow.codPais],
             ['Codigo', typedRow.codigo],
@@ -275,6 +275,10 @@ export function enrichXmlWithGains(
             ['ImpostoPagoNoEstrangeiro', typedRow.impostoPagoNoEstrangeiro],
             ['CodPaisContraparte', typedRow.codPaisContraparte],
           ];
+          if (typedRow.valMobAdmNeg) {
+            fields.push(['ValMobAdmNeg', typedRow.valMobAdmNeg]);
+          }
+          return fields;
         },
         somaNodes: [
           { tag: 'AnexoJq092AT01SomaC01', fieldToSum: 'ValorRealizacao', computeNewSoma: rows => sumBy(rows as TaxRow[], r => r.valorRealizacao) },

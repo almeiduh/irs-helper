@@ -8,7 +8,7 @@ import { normalizeNumber, extractPdfText, extractRows, matchesAnyMarker } from '
 
 const REGEX_8A = /(?:^|\s)\d{3}\s+(E\d{2})\s*(?:\(\d+%?\))?\s+(\d{3})\s+([\d.,-]+)\s+([\d.,-]+)(?=\s|$)/g;
 
-const REGEX_92A = /(?:^|\s)\d{3,}\s+(\d{3})\s+(G\d{2})\s+(\d{4})\s+(\d{1,2})\s+(\d{1,2})\s+([\d.,-]+)\s+(\d{4})\s+(\d{1,2})\s+(\d{1,2})\s+([\d.,-]+)\s+([\d.,-]+)\s+([\d.,-]+)\s+(\d{3})(?=\s|$)/g;
+const REGEX_92A = /(?:^|\s)\d{3,}\s+(\d{3})\s+(G\d{2})\s+(\d{4})\s+(\d{1,2})\s+(\d{1,2})\s+([\d.,-]+)\s+(\d{4})\s+(\d{1,2})\s+(\d{1,2})\s+([\d.,-]+)\s+([\d.,-]+)\s+([\d.,-]+)\s+(\d{3})\s+(SIM|S|NAO|N(?:[ÃA]O)?)(?=\s|$)/gi;
 
 const REGEX_92B = /(?:^|\s)\d{3,}\s+(G\d{2})\s+(\d{3})\s+([\d.,-]+)\s+([\d.,-]+)\s+(\d{3})(?=\s|$)/g;
 
@@ -62,6 +62,7 @@ function extractRows92A(pageTexts: string[]): TaxRow[] {
     despesasEncargos: normalizeNumber(match[11]),
     impostoPagoNoEstrangeiro: normalizeNumber(match[12]),
     codPaisContraparte: match[13],
+    valMobAdmNeg: /^S/i.test(match[14]) ? 'SIM' : 'NAO',
   }));
 }
 
